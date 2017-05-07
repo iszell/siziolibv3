@@ -1,0 +1,7 @@
+IOLibV3Test.prg IOLIBV3TEST
+IOLibV3ExoTest.prg IOLIBV3EXOTEST
+loader.bin LOADER
+createtestpattern.prg CREATETESTPATTERN
+testpattern.bin TESTPATTERN
+dotctitle.bin DOTCTITLE
+dotctitlecompressed.bin EXO.DOTCTITLE
