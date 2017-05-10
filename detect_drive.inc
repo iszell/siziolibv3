@@ -80,7 +80,6 @@ io_detdrvnotpresent
 	pha
 	lda	io_driveiftyp
 	pha
-	.byte $f2
 	sei
 	sta	ted_ramen
 	lda	io_tcbmoffs
