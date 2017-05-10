@@ -117,8 +117,7 @@ io_det_memsize
 +
 ;	lda	#")"
 ;	jsr	chrout
-	lda	#13
-	jsr	chrout
+	jsr	io_prtcr
 	.endif
 	rts
 	

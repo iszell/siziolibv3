@@ -17,6 +17,8 @@
 ;	2015.08.14: bugfix in SID type detection when no SIDCard present
 ;	2016.04.02: exomizer decruncher during load
 ;	2016.09.06: modular architecture
+;	2017.05.08: first public release (no code changes, added readme)
+;	2017.05.10: dual 1551 fix
 
 	.include	"plus4_io_map.inc"
 	.include	"plus4kernal-table.inc"
@@ -64,10 +66,16 @@ io_det_video
 	inx
 	dey
 	bne	-
-	lda	#13
-	jsr	chrout
+	jsr	io_prtcr
 	.endif
 	rts
+
+	.if	io_prtstatus
+io_prtspc	lda	#" "
+	jmp	chrout
+io_prtcr	lda	#13
+	jmp	chrout
+	.endif
 
 	.if	io_prtstatus
 io_vidnames

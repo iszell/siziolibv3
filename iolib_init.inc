@@ -90,8 +90,7 @@ initloader
 	iny
 	dex
 	bne	-
-	lda	#13
-	jsr	chrout
+	jsr	io_prtcr
 	pla
 	.endif
 	asl

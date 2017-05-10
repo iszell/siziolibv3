@@ -50,14 +50,12 @@
 	tax
 	lda	#0
 	jsr	lnprt
-;	lda	#" "
-;	jsr	chrout
+;	jsr	io_prtspc
 ;	pla
 ;	tax
 ;	lda	#0
 ;	jsr	lnprt
-	lda	#" "
-	jsr	chrout
+	jsr	io_prtspc
 	plp
 	bcs	+
 	jsr	primm

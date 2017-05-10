@@ -41,8 +41,7 @@ io_detnextdrvtp
 	jsr	io_prtdrivenum
 	lda	#":"
 	jsr	chrout
-	lda	#" "
-	jsr	chrout
+	jsr	io_prtspc
 	lda	io_drivetyp
 	asl
 	asl
@@ -56,8 +55,7 @@ io_detnextdrvtp
 	inx
 	dey
 	bne	-
-+	lda	#" "
-	jsr	chrout
++	jsr	io_prtspc
 	lda	io_driveiftyp
 	asl
 	asl
@@ -70,8 +68,7 @@ io_detnextdrvtp
 	inx
 	dey
 	bne	-
-	lda	#13
-	jsr	chrout
+	jsr	io_prtcr
 	.endif	
 io_detdrvnotpresent
 	pla
@@ -83,6 +80,13 @@ io_detdrvnotpresent
 	pha
 	lda	io_driveiftyp
 	pha
+	.byte $f2
+	sei
+	sta	ted_ramen
+	lda	io_tcbmoffs
+	pha
+	sta	ted_romen
+	cli
 +	ldx	$ae
 	inx
 	cpx	#31
@@ -93,10 +97,11 @@ io_detdrvnotpresent
 	lda	io_drivesernum
 	ora	#"0"
 	jsr	chrout
-	lda	#13
-	jsr	chrout
+	jsr	io_prtcr
 	.endif
 	; restore interface and current drive
+	pla
+	sta	io_tcbmoffs
 	pla
 	cmp	#1
 	bne	+ ; not serial

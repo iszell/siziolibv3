@@ -87,8 +87,7 @@ io_det_sound
 	inx
 	dey
 	bne	-
-+	lda	#13
-	jsr	chrout
++	jsr	io_prtcr
 	.endif
 	rts
 	
