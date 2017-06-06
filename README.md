@@ -131,6 +131,6 @@ For variables set by detection check the contents of iolib_def.inc.
 Memory used:
 - $02/$03 (init only)
 - $9e/$9f (during non-exomizer load)
-- $a7, $ae/$af, $fd-$ff (exomizer decruncher)
+- $a7, $ae/$af, $fc-$ff (exomizer decruncher)
 - $b7 (during serial load)
 - $ff40-$ffdc (exomizer decruncher)
