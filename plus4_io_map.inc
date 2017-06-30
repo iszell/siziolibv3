@@ -76,7 +76,7 @@ ramexpctrl_csory	= $fd15
 ;       6: expansion disable for TED: 0: access only default bank (11), 
 ;                                     1: access like CPU
 ;          affects Csory expansion too 
-;     5-4: activate Csory expansion with 10, other values switch it off
+;     5-4: activate Csory expansion with 01, other values switch it off
 ;          address bits 21-20 for 4M Hannes RAM expansion
 ;     3-2: unused
 ;          address bits 19-18 for 1M Hannes RAM expansion 
