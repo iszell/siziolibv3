@@ -42,6 +42,8 @@ initloader
 	sta	io_decrunch+$100,x
 	dex
 	bpl	-
+	pla
+	pha
 	.endif
 	.if	io_prtstatus
 	jsr	primm
