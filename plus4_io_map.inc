@@ -84,6 +84,15 @@ ramexpctrl_csory	= $fd15
 ; Caution! Bits 1&0 are inverted!
 ; Default value: $ff
 ramexpctrl_hannes	= $fd16
+; Hannes/Solder ROM expansion control
+; Bit   7: 1: disable external cartridge ROMs, use internal ROM/SRAM expansion
+;       6: 1: write protect SRAM bank $f, 0: SRAM bank $f write enabled between $4000 and $bfff
+;       5: 1: write protect SRAM bank $a, 0: SRAM bank $a write enabled between $4000 and $bfff
+;       4: 1: write protect SRAM bank $5, 0: SRAM bank $5 write enabled between $4000 and $bfff
+;     3-2: unused
+;     1-0: ROM/SRAM bank select (A15 and A14 for ROM banks)
+; Default value: $ff
+romexpctrl	= $fd17
 
 sid_solder	= $fd40
 nae_control	= $fd80
