@@ -71,17 +71,17 @@ io_det_video
 	rts
 
 	.if	io_prtstatus
+io_vidnames
+	.text	"PAL NTSC"
+	.endif
+.endif
+	.if	io_prtstatus
 io_prtspc	lda	#" "
 	jmp	chrout
 io_prtcr	lda	#13
 	jmp	chrout
 	.endif
 
-	.if	io_prtstatus
-io_vidnames
-	.text	"PAL NTSC"
-	.endif
-.endif
 .if	io_needmemdetect
 	.include	"detect_memory.inc"
 .endif
