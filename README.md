@@ -109,7 +109,7 @@ You have to call two functions:
 - `io_detect` to do hardware detection
 - `io_init` to initialize the loader. This will install the loader from $fc00-$fcff
   with some variables from $fbfb-fbff.
-  If you use exomizer decruncher it will occupy $fa80-$bfa.
+  If you use exomizer decruncher it will occupy $fa80-$fbfa.
 
 After that you only have to do the following in your parts:
 - include `iolib_def.inc`
