@@ -20,6 +20,7 @@
 	rts
 
 get_crunched_byte
+	php
 	stx xtemp
 	sty ytemp
 -	jsr io_readbyte
@@ -39,14 +40,17 @@ xtemp	= * + 1
 	ldx #0
 ytemp	= * + 1
 	ldy #0
+	plp
 	rts
 lderror	pla
 	pla
 	pla
 	pla
+	pla
 	sec
 	.byte $24 ; bit $xx
-eof	clc
+eof	pla
+	clc
 	rts
 	.include	"exodecrunch.inc"
 	.bend

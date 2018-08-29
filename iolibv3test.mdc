@@ -7,4 +7,4 @@ testpattern.bin TESTPATTERN
 dotctitle.bin DOTCTITLE
 dotctitlecompressed.bin EXO.DOTCTITLE
 bitmap1.bin B1
-bitmap1exo.bin E1
+bitmap1exo.prg E1
