@@ -123,7 +123,7 @@ Address | Usage
 ------- | -----
 $02/$03 | Init only (you can safely use it after io_init)
 $9e/$9f | Non-exomizer load pointer (you can use it but it will be destroyed during non-exomizer loads)
-$a7, $ae/$af, $fc-$ff | Exomizer decruncher only. Free if you don't use exomizer
+$a7/$a8, $ae/$af, $fc-$ff | Exomizer decruncher only. Free if you don't use exomizer
 $b7 | Serial load shift area. Not used on non-serial drives
 $fa80-$fbfa | Exomizer decruncher resident part
 $fbfb-$fbff | Work area
