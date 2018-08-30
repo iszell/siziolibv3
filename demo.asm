@@ -107,3 +107,6 @@ io_needloader = 1
 io_needdecrunch = 1
 	.include	"iolib_def.inc"
 	.include	"iolib.inc"
+; Eclipse Assembly Editor custom preferences
+;#$postProcessor=exomizer\3.0.1\exomizer.exe
+;#$postProcessorOptions=sfx basic -t4 -o &o &i
