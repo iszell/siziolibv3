@@ -156,7 +156,6 @@ decrunch:
 ;
         ldy #0
         ldx #3
-        ldx #1
 init_zp:
         jsr get_crunched_byte
         sta zp_bitbuf - 1,x
