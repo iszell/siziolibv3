@@ -12,15 +12,14 @@
 	pla
 	jsr io_writebyte
 	jsr io_sync
-	jsr get_crunched_byte ; Ignore first two bytes of file
-	jsr get_crunched_byte
+	jsr getcmem ; Ignore first two bytes of file
+	jsr getcmem
 	jsr decrunch
-	jsr get_crunched_byte ; read EOF marker
+	jsr getcmem ; read EOF marker
 	clc
 	rts
 
-get_crunched_byte
-	php
+getcmem	php
 	stx xtemp
 	sty ytemp
 -	jsr io_readbyte

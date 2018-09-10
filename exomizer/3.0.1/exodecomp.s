@@ -1,5 +1,3 @@
-; Source modified for forward only decompression and 64Tass syntax by Siz.
-
 ; modified by Krill/Plush to implement forward decrunching and integrate into loader
 
 ;
@@ -40,66 +38,66 @@
 ; This function will not change the interrupt status bit and it will not
 ; modify the memory configuration.
 ; -------------------------------------------------------------------
-;.export decrunch
+.export decrunch
 
 ; -------------------------------------------------------------------
 ; Controls if the shared get_bits routines should be inlined or not.
 ;INLINE_GET_BITS=1
-INLINE_GET_BITS=0
 ; -------------------------------------------------------------------
 ; if literal sequences is not used (the data was crunched with the -c
 ; flag) then the following line can be uncommented for shorter and.
 ; slightly faster code.
-LITERAL_SEQUENCES_NOT_USED = 1
+;LITERAL_SEQUENCES_NOT_USED = 1
 ; -------------------------------------------------------------------
 ; if the sequence length is limited to 256 (the data was crunched with
 ; the -M256 flag) then the following line can be uncommented for
 ; shorter and slightly faster code.
-MAX_SEQUENCE_LENGTH_256 = 1
+;MAX_SEQUENCE_LENGTH_256 = 1
 ; -------------------------------------------------------------------
 ; zero page addresses used
 ; -------------------------------------------------------------------
+zp_len_lo = DECOMPVARS + 0; $a7
+zp_len_hi = DECOMPVARS + 1; $a8
 
-MEM_DECOMP_TO_API=0
-LOADCOMPD_TO=0
-
-zp_len_lo = $a7
-zp_len_hi = $a8
-
-zp_src_lo  = $ae
+zp_src_lo  = DECOMPVARS + 2; $ae
 zp_src_hi  = zp_src_lo + 1
 
-zp_bits_hi = $fc
+zp_bits_hi = DECOMPVARS + 4; $fc
 
-zp_bitbuf  = $fd
-zp_dest_lo = zp_bitbuf + 1      ; dest addr lo
-zp_dest_hi = zp_bitbuf + 2      ; dest addr hi
+zp_bitbuf  = DECOMPVARS + 5; $fd
+.if MEM_DECOMP_TO_API
+zp_dest_lo = decdestlo; zp_bitbuf + 1      ; dest addr lo
+zp_dest_hi = decdesthi; zp_bitbuf + 2      ; dest addr hi
+.else
+zp_dest_lo = zp_bitbuf + 1; zp_bitbuf + 1      ; dest addr lo
+zp_dest_hi = zp_bitbuf + 2; zp_bitbuf + 2      ; dest addr hi
+.endif
 
 tabl_bi = decrunch_table
 tabl_lo = decrunch_table + 52
 tabl_hi = decrunch_table + 104
 
-SETDECOMPGETBYTE .macro
+.macro SETDECOMPGETBYTE
         sta decompgetbyte + 1
         sty decompgetbyte + 2
-.endm
+.endmacro
 
 FORWARD_DECRUNCHING = 1
 
 decompress = decrunch
 
         ;; refill bits is always inlined
-mac_refill_bits .MACRO
+.MACRO mac_refill_bits
         pha
         jsr get_crunched_byte
         rol
         sta zp_bitbuf
         pla
-.ENDM
+.ENDMACRO
 
-.IF 1=INLINE_GET_BITS
-mac_get_bits .MACRO
-.BLOCK
+.IFDEF INLINE_GET_BITS
+.MACRO mac_get_bits
+.SCOPE
         adc #$80                ; needs c=0, affects v
         asl
         bpl gb_skip
@@ -117,12 +115,12 @@ gb_get_hi:
         sta zp_bits_hi
         jsr get_crunched_byte
 skip:
-.BEND
-.ENDM
+.ENDSCOPE
+.ENDMACRO
 .ELSE
-mac_get_bits .MACRO
+.MACRO mac_get_bits
         jsr get_bits
-.ENDM
+.ENDMACRO
 get_bits:
         adc #$80                ; needs c=0, affects v
         asl
@@ -164,7 +162,7 @@ decrunch:
 ; init zeropage, x and y regs. (12 bytes)
 ;
         ldy #0
-.if 1=MEM_DECOMP_TO_API
+.if MEM_DECOMP_TO_API
         jsr get_crunched_byte
 storedadrh:
         sta zp_dest_hi
@@ -182,7 +180,7 @@ init_zp:
         bne init_zp
 .endif
 
-.if 1=LOADCOMPD_TO
+.if LOADCOMPD_TO
         clc
         lda loadaddroffslo
         adc zp_dest_lo
@@ -250,7 +248,7 @@ no_fixup_lohi:
 ; copy one literal byte to destination (11 bytes)
 ;
 literal_start1:
-.IF 0=FORWARD_DECRUNCHING
+.IFNDEF FORWARD_DECRUNCHING
         tya
         bne no_hi_decr
         dec zp_dest_hi
@@ -290,7 +288,7 @@ nofetch8:
 ; check for decrunch done and literal sequences (4 bytes)
 ;
         cpx #$11
-.IF 1=INLINE_GET_BITS
+.IFDEF INLINE_GET_BITS
         bcc skip_jmp
         jmp exit_or_lit_seq
 skip_jmp:
@@ -304,7 +302,7 @@ skip_jmp:
         mac_get_bits
         adc tabl_lo - 1,x       ; we have now calculated zp_len_lo
         sta zp_len_lo
-.IF 0=MAX_SEQUENCE_LENGTH_256
+.IFNDEF MAX_SEQUENCE_LENGTH_256
         lda zp_bits_hi
         adc tabl_hi - 1,x       ; c = 0 after this.
         sta zp_len_hi
@@ -335,11 +333,11 @@ gbnc2_ok:
 ; -------------------------------------------------------------------
 ; calulate absolute offset (zp_src) (21 bytes) + get_bits macro
 ;
-.IF 0=MAX_SEQUENCE_LENGTH_256
+.IFNDEF MAX_SEQUENCE_LENGTH_256
         lda #0
         sta zp_bits_hi
 .ENDIF
-.IF 0=FORWARD_DECRUNCHING
+.IFNDEF FORWARD_DECRUNCHING
         lda tabl_bi,x
         mac_get_bits
         adc tabl_lo,x
@@ -369,21 +367,21 @@ gbnc2_ok:
 ; main copy loop (30 bytes)
 ;
 copy_next:
-.IF 0=FORWARD_DECRUNCHING
+.IFNDEF FORWARD_DECRUNCHING
         tya
         bne copy_skip_hi
         dec zp_dest_hi
         dec zp_src_hi
 copy_skip_hi:
         dey
-.IF 0=LITERAL_SEQUENCES_NOT_USED
+.IFNDEF LITERAL_SEQUENCES_NOT_USED
         bcs get_literal_byte
 .ENDIF
         lda (zp_src_lo),y
 literal_byte_gotten:
         sta (zp_dest_lo),y
 .ELSE
-.IF 0=LITERAL_SEQUENCES_NOT_USED
+.IFNDEF LITERAL_SEQUENCES_NOT_USED
         bcc get_literal_byte
 .ENDIF
         lda (zp_src_lo),y
@@ -397,28 +395,28 @@ copy_skip_hi:
 .ENDIF
         dex
         bne copy_next
-.IF 0=MAX_SEQUENCE_LENGTH_256
+.IFNDEF MAX_SEQUENCE_LENGTH_256
         lda zp_len_hi
-.IF 1=INLINE_GET_BITS
+.IFDEF INLINE_GET_BITS
         bne copy_next_hi
 .ENDIF
 .ENDIF
 begin_stx:
         stx zp_bits_hi
-.IF 0=INLINE_GET_BITS
+.IFNDEF INLINE_GET_BITS
         beq next_round
 .ELSE
         jmp next_round
 .ENDIF
-.IF 0=MAX_SEQUENCE_LENGTH_256
+.IFNDEF MAX_SEQUENCE_LENGTH_256
 copy_next_hi:
         dec zp_len_hi
         jmp copy_next
 .ENDIF
-.IF 0=LITERAL_SEQUENCES_NOT_USED
+.IFNDEF LITERAL_SEQUENCES_NOT_USED
 get_literal_byte:
         jsr get_crunched_byte
-.IF 0=FORWARD_DECRUNCHING
+.IFNDEF FORWARD_DECRUNCHING
         bcs literal_byte_gotten
 .ELSE
         bcc literal_byte_gotten
@@ -428,15 +426,15 @@ get_literal_byte:
 ; exit or literal sequence handling (16(12) bytes)
 ;
 exit_or_lit_seq:
-.IF 0=LITERAL_SEQUENCES_NOT_USED
+.IFNDEF LITERAL_SEQUENCES_NOT_USED
         beq decr_exit
         jsr get_crunched_byte
-.IF 0=MAX_SEQUENCE_LENGTH_256
+.IFNDEF MAX_SEQUENCE_LENGTH_256
         sta zp_len_hi
 .ENDIF
         jsr get_crunched_byte
         tax
-.IF 0=FORWARD_DECRUNCHING
+.IFNDEF FORWARD_DECRUNCHING
         bcs copy_next
 .ELSE
         clc
@@ -458,17 +456,17 @@ tabl_bit:
 ; this 156 byte table area may be relocated. It may also be clobbered
 ; by other data between decrunches.
 ; -------------------------------------------------------------------
-decrunch_table = $ff40
-;        .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-;        .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-;        .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-;        .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-;        .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-;        .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-;        .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-;        .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-;        .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-;        .byte 0,0,0,0,0,0,0,0,0,0,0,0
+decrunch_table:
+        .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        .byte 0,0,0,0,0,0,0,0,0,0,0,0
 ; -------------------------------------------------------------------
 ; end of decruncher
 ; -------------------------------------------------------------------
