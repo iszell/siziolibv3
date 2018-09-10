@@ -85,7 +85,7 @@ connect the drive to the computer in the following order
 - serial (154*, 157*, 158*, RF501C, SD2IEC)
 
 ## 2.7 Exomizer decruncher
-There is a module for unpacking Exomizer packed files on-the-fly. To use this
+There is a module for unpacking Exomizer 3.0.1 packed files on-the-fly. To use this
 feature you have to start exomizer with `mem -f` options.
 
 # 3. Usage
