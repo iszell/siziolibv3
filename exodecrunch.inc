@@ -50,12 +50,14 @@ INLINE_GET_BITS=0
 ; if literal sequences is not used (the data was crunched with the -c
 ; flag) then the following line can be uncommented for shorter and.
 ; slightly faster code.
-LITERAL_SEQUENCES_NOT_USED = 1
+;LITERAL_SEQUENCES_NOT_USED = 1
+LITERAL_SEQUENCES_NOT_USED = 0
 ; -------------------------------------------------------------------
 ; if the sequence length is limited to 256 (the data was crunched with
 ; the -M256 flag) then the following line can be uncommented for
 ; shorter and slightly faster code.
-MAX_SEQUENCE_LENGTH_256 = 1
+;MAX_SEQUENCE_LENGTH_256 = 1
+MAX_SEQUENCE_LENGTH_256 = 0
 ; -------------------------------------------------------------------
 ; zero page addresses used
 ; -------------------------------------------------------------------
