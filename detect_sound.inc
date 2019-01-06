@@ -1,6 +1,10 @@
 sidptr	=	2
 
 io_det_sound
+	lda	sidptr
+	pha
+	lda	sidptr+1
+	pha
 .if	ted_romen
 	sei
 	sta ted_ramen
@@ -89,6 +93,10 @@ io_det_sound
 	bne	-
 +	jsr	io_prtcr
 	.endif
+	pla
+	sta	sidptr+1
+	pla
+	sta	sidptr
 	rts
 	
 ; Detect SID address
