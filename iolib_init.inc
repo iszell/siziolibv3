@@ -247,21 +247,37 @@ io_loadertab
 	.byte	0, 0 ; f
 	; serial with single drive on the bus
 	.byte	0, 0 ; 0 unknown
-	.byte	1, 1 ; 1 1540
-	.byte	1, 1 ; 2 1541
-	.byte	1, 1 ; 3 1541C
-	.byte	1, 1 ; 4 1541-II
+	.byte	2, 2 ; 1 1540
+	.byte	2, 2 ; 2 1541
+	.byte	2, 2 ; 3 1541C
+	.byte	2, 2 ; 4 1541-II
 	.byte	0, 0 ; 5 1551
-	.byte	1, 1 ; 6 1570
-	.byte	1, 1 ; 7 1571
-	.byte	1, 3 ; 8 1581
-	.byte	1, 1 ; 9 RF-501C
+	.byte	2, 2 ; 6 1570
+	.byte	2, 2 ; 7 1571
+	.byte	2, 4 ; 8 1581
+	.byte	2, 2 ; 9 RF-501C
 	.byte	2, 7 ; a SD2IEC
 	.byte	0, 0 ; b
 	.byte	0, 0 ; c
 	.byte	0, 0 ; d
 	.byte	0, 0 ; e
 	.byte	0, 0 ; f
+;	.byte	0, 0 ; 0 unknown
+;	.byte	1, 1 ; 1 1540
+;	.byte	1, 1 ; 2 1541
+;	.byte	1, 1 ; 3 1541C
+;	.byte	1, 1 ; 4 1541-II
+;	.byte	0, 0 ; 5 1551
+;	.byte	1, 1 ; 6 1570
+;	.byte	1, 1 ; 7 1571
+;	.byte	1, 3 ; 8 1581
+;	.byte	1, 1 ; 9 RF-501C
+;	.byte	2, 7 ; a SD2IEC
+;	.byte	0, 0 ; b
+;	.byte	0, 0 ; c
+;	.byte	0, 0 ; d
+;	.byte	0, 0 ; e
+;	.byte	0, 0 ; f
 	; serial with multiple drives on the bus
 	.byte	0, 0 ; 0 unknown
 	.byte	2, 2 ; 1 1540
