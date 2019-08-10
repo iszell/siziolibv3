@@ -13,5 +13,8 @@ bin\64tass --ascii -o bitmap1exo.tmp bitmap1exo.asm
 exomizer\3.0.1\exomizer.exe mem -f -o bitmap1exo.prg bitmap1exo.tmp
 del bitmap1exo.tmp
 
-bin\makedisk iolibv3test.d64 iolibv3test.mdc
+bin\cc1541 -f DEMO -w demo.prg -f IOLIBV3TEST -w IOLibV3Test.prg -f IOLIBV3EXOTEST -w IOLibV3ExoTest.prg -f B1 -w bitmap1.bin -f E1 -w bitmap1exo.prg -n IOLIBV3TEST -i IO32A iolibv3test.d64
+bin\cc1541 -f DEMO -w demo.prg -f IOLIBV3TEST -w IOLibV3Test.prg -f IOLIBV3EXOTEST -w IOLibV3ExoTest.prg -f B1 -w bitmap1.bin -f E1 -w bitmap1exo.prg -n IOLIBV3TEST -i IO32A iolibv3test.d71
+bin\cc1541 -f DEMO -w demo.prg -f IOLIBV3TEST -w IOLibV3Test.prg -f IOLIBV3EXOTEST -w IOLibV3ExoTest.prg -f B1 -w bitmap1.bin -f E1 -w bitmap1exo.prg -n IOLIBV3TEST -i IO32D iolibv3test.d81
+
 start iolibv3test.d64
