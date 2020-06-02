@@ -19,7 +19,7 @@
 	ldx	#>irq
 	sta	$fffe
 	stx	$ffff
-	lda	#%00001010
+	lda	#%00000010
 	sta	ted_irqmask
 	lda	#220
 	sta	ted_rasterirqline
@@ -64,13 +64,13 @@
 	.text	"error"
 	.byte	13
 	.null	"load took "
-	ldx	counter
-	lda	counter+1
+	lda	counter
+	ldx	counter+1
 	jsr	lnprt
 	lda	#":"
 	jsr	chrout
-	ldx	counter+2
-	lda	counter+3
+	lda	counter+2
+	ldx	counter+3
 	jsr	lnprt
 	jsr	primm
 	.text	" frames"
@@ -82,20 +82,14 @@ irq	inc	ted_border
 	pha
 	lda	ted_irqsource
 	sta	ted_irqsource
-	and	#%00000010
-	beq	+
 	inc	counter+3
-	bcc	+
+	bne	+
 	inc	counter+2
-	bcc	+
+	bne	+
 	inc	counter+1
-	bcc	+
+	bne	+
 	inc	counter
-+	lda	ted_timer3lo
-	eor	ted_timer2lo
-	sta	ted_timer1lo
-	sta	ted_timer1hi
-	pla
++	pla
 	dec	ted_border
 	rti
 

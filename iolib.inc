@@ -19,6 +19,7 @@
 ;	2016.09.06: modular architecture
 ;	2017.05.08: first public release (no code changes, added readme)
 ;	2017.05.10: dual 1551 fix
+;	2020.05.30: change copyright message
 
 	.include	"plus4_io_map.inc"
 	.include	"plus4kernal-table.inc"
@@ -28,7 +29,7 @@ io_detect
 	.if	io_prtstatus
 	jsr	primm
 	.byte	14
-	.text	"IOLibV3 by Siz of TBC (c) 2015"
+	.text	"IOLibV3 by Siz of Absence (c) 2020"
 	.byte	13
 	.text	"Detecting hardware configuration..."
 	.byte	13, 0

@@ -22,8 +22,8 @@ retrycnt	= $5f
 
 serialdata = $4001
 
-ledport	= $4000
-ledvalue	= %00100000
+ledport	= $79
+ledvalue	= %01000000
 ledinverted = 0
 
 blk4buf	= $0700
