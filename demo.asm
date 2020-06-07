@@ -29,6 +29,7 @@ bmp	=	$2000
 	sta	loopcnt+2
 	sta	loopcnt+3
 	sta	loopcnt+4
+	sta	jiffy
 
 	sei
 	sta	ted_ramen
@@ -131,6 +132,7 @@ irqline	= *+1
 	
 	bpl	+
 	jsr	incframe
+	jsr	inctimer
 +
 	
 	lda	ted_irqsource
@@ -145,29 +147,83 @@ irqline	= *+1
 
 rstframe
 	ldx	#0
-	stx	framecnt
-	stx	framecnt+1
-	stx	framecnt+2
-	stx	framecnt+3
-	stx	framecnt+4
+	stx	timecnt
+	stx	timecnt+1
+	stx	timecnt+2
+	stx	timecnt+3
+	stx	timecnt+4
 	inx
 	stx	framerun
-	rts
+-	rts
 
 incframe
+	lda	framerun
+	beq	-
 	ldy	#4
--	ldx	framecnt,y
+	inc	timecnt+4
+-	ldx	timecnt,y
 	inx
 	cpx	#10
 	bne	+
 	lda	#0
-	sta	framecnt,y
+	sta	timecnt,y
 	dey
 	bpl	-
 +	txa
-	sta	framecnt,y
-	rts
+	sta	timecnt,y
+-	rts
+
+inctimer
+	inc	jiffy
+	lda	jiffy
+	cmp	#50
+	bne	-
+	lda	#0
+	sta	jiffy
 	
+	inc	runsec+1
+	lda	runsec+1
+	cmp	#"9"+1
+	bne	-
+	lda	#"0"
+	sta	runsec+1
+	
+	inc	runsec
+	lda	runsec
+	cmp	#"6"
+	bne	-
+	lda	#"0"
+	sta	runsec
+
+	inc	runmin+1
+	lda	runmin+1
+	cmp	#"9"+1
+	bne	-
+	lda	#"0"
+	sta	runmin+1
+	
+	inc	runmin
+	lda	runmin
+	cmp	#"6"
+	bne	-
+	lda	#"0"
+	sta	runmin
+
+	inc	runhour+1
+	lda	runhour+1
+	cmp	#"9"+1
+	bne	-
+	lda	#"0"
+	sta	runhour+1
+	
+	inc	runhour
+	lda	runhour
+	cmp	#"9"+1
+	bne	-
+	lda	#"0"
+	sta	runhour
+
+	rts
 
 incloop	ldy	#4
 -	ldx	loopcnt,y
@@ -189,12 +245,18 @@ incloop	ldy	#4
 	rts
 
 prtstr	
-	ldx	#4
--	lda	framecnt,x
+	ldx	#0
+	ldy	#0
+-	lda	timecnt,x
 	ora	#"0"
-	sta	framestr,x
-	dex
-	bpl	-
+	sta	timestr,y
+	inx
+	iny
+	cpy	#3
+	bne	+
+	iny
++	cpx	#5
+	bne	-
 
 	lda	#0
 	sta	prtchar.dstaddr
@@ -251,23 +313,21 @@ savea=*+1
 	rts
 
 loopcnt	.fill	5
-		;012345
-framecnt
-	.fill	5
+timecnt	.fill	5
 framerun
 	.byte	0
+jiffy	.byte	0
 
-		;012345
-string	.text	"Loop: "
-		;6789abcdef0123
-loopstr	.text	"01234 Frames: "
-		;456789
-framestr
-	.text	"01234 "
-		;abc
+string	.text	"L: "
+loopstr	.text	"01234 T: "
+timestr
+	.text	"012.34s "
 modestr	.text	"Raw"
-		;def
-	.text	"   "
+	.text	" "
+runhour	.text	"00:"
+runmin	.text	"00:"
+runsec	.text	"00"
+	.fill	32, " "
 
 io_prtstatus = 1
 io_needmemdetect = 1
