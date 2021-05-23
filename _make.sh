@@ -6,9 +6,9 @@ for i in "loader_plus4_serial1bit" "loader_plus4_serial2bit" "loader_plus4_paral
 ; done
 
 64tass --ascii -l demo.lst -o demo.tmp demo.asm
-exomizer sfx basic -t 4 -o demo.prg demo.tmp
+exomizer3.0.2 sfx basic -t 4 -o demo.prg demo.tmp
 64tass --ascii -o bitmap1exo.tmp bitmap1exo.asm
-exomizer mem -f -o bitmap1exo.prg bitmap1exo.tmp
+exomizer3.0.2 mem -f -o bitmap1exo.prg bitmap1exo.tmp
 rm bitmap1exo.tmp
 
 for i in "loader_plus4_serial1bit" "loader_plus4_serial2bit" "loader_plus4_parallel" "loader_plus4_tcbm" "loader_drive_1bit1541" "loader_drive_2bit1541" "loader_drive_1bit1581" "loader_drive_parallel1541" "loader_drive_tcbm" "loader_drive_gijoe" "decrunch" ; do \
