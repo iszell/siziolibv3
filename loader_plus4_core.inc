@@ -1,21 +1,23 @@
-	.include	"plus4_io_map.inc"
-	.include	"iolib_def.inc"
+	#importonce
+	#import	"plus4_io_map.inc"
+	#import	"iolib_def.inc"
 
-ptr	= $9e
-
-startload	lda #2
+.macro	plus4load(readbyte, writebyte, sync, hardsync) {
+.label	ptr	= $9e
+	lda #2
 	jsr sendfnam
 	jsr readbyte
 	sta ptr
 	jsr readbyte
 	sta ptr+1
 	cmp #$fe
-	bne +
+	bne !+
 	jsr readbyte
 	jsr readbyte
 	jmp loaderror
-+	ldy #0
-loadloop	jsr readbyte
+!:	ldy #0
+loadloop:
+	jsr readbyte
 	cmp #$ac
 	bne storebyte
 	jsr readbyte
@@ -27,17 +29,20 @@ loadloop	jsr readbyte
 	beq loaderror
 	jsr sync
 	jmp loadloop
-storebyte	sta (ptr),Y
+storebyte:
+	sta (ptr),Y
 	iny
-	bne +
+	bne !+
 	inc ptr+1
-+	jmp loadloop
-eof	clc
-loaderror	ldx filename
+!:	jmp loadloop
+eof:	clc
+loaderror:
+	ldx filename
 	ldy filename+1
 	lda #0
 	rts
-sendfnam	pha
+sendfnam:
+	pha
 	stx filename
 	sty filename+1
 	jsr hardsync
@@ -49,4 +54,6 @@ sendfnam	pha
 	jsr writebyte
 	jmp sync
 
-filename	.text "f0"
+filename:
+	.byte 0, 0
+}

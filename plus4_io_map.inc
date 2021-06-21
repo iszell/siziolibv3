@@ -44,24 +44,26 @@
 .label	pio_keyboard 	= $fd30
 .label	rom_bank_latch 	= $fdd0
 	
-.label	ted		= $ff00
+.label	ted_base	= $ff00
 
 // Expansions
 // ----------
 
 .label	tcbm_8		= $fef0
 .label	tcbm_9		= $fec0
-.label	tcbm_data	= tcbm_9 + 0
+.namespace tcbm {
+.label	data	= tcbm_9 + 0
 //  Bit1    status 1
 //  Bit0    status 0
-.label	tcbm_status	= tcbm_9 + 1
+.label	status	= tcbm_9 + 1
 //  Bit7    DAV
 //  Bit6    ACK
-.label	tcbm_handshake	= tcbm_9 + 2
+.label	handshake	= tcbm_9 + 2
 // 1=out// 0=in
-.label	tcbm_data_dir	= tcbm_9 + 3
-.label	tcbm_status_dir	= tcbm_9 + 4
-.label	tcbm_handshake_dir	= tcbm_9 + 5
+.label	data_dir	= tcbm_9 + 3
+.label	status_dir	= tcbm_9 + 4
+.label	handshake_dir	= tcbm_9 + 5
+}
 	
 // Custom expansions
 // -----------------

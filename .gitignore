@@ -5,3 +5,4 @@
 *.lst
 *.tmp
 *.log
+*.sym
