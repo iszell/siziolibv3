@@ -30,7 +30,7 @@ initloader:
 	.text	"Initializing I/O library"
 	.byte	13,0
 	#endif	
-	#if	need_exomizer
+	#if	need_exodecrunch
 	#if	prtstatus
 	jsr	primm
 	.text	" Exomizer decruncher"
@@ -38,12 +38,12 @@ initloader:
 	#endif
 	ldx	#0
 !:	lda	io_decrunchdata,x
-	sta	io_decrunch,x
+	sta	iolib.decrunch,x
 	inx
 	bne	!-
-	ldx	#io_decrunchdatasize-$100
+	ldx	#io_decrunchdatasize-$100-1
 !:	lda	io_decrunchdata+$100,x
-	sta	io_decrunch+$100,x
+	sta	iolib.decrunch+$100,x
 	dex
 	bpl	!-
 	pla
@@ -397,9 +397,9 @@ io_drvtcbm:
 io_drvgijoe:
 	#import	"loader_drive_gijoe.inc"
 io_loaderend:
-#if need_exomizer
+#if need_exodecrunch
 io_decrunchdata:
-	.binary	"decrunch.prg", 2
+	#import	"decrunch.inc"
 .label io_decrunchdatasize=*-io_decrunchdata
 #endif
 

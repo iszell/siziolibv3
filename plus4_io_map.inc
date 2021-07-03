@@ -15,30 +15,32 @@
 //  0   Out Serial Data Out                        (0=High, 1=Low) (Inverted)
 .label	cpu_port	= $1
 
-.label	acia		= $fd00
-.label	acia_data	= acia + 0
-// Read: status, Write: programmed reset (for any data)
+.label	acia_base	= $fd00
+.namespace	acia	{
+	.label	data	= acia_base + 0
+	// Read: status, Write: programmed reset (for any data)
 
-//  Bit7    IRq (1: was)
-//  Bit6    DSR
-//  Bit5    DCD
-//  Bit4    Transmit data register empty
-//  Bit3    Receive data register full
-//  Bit2    Overrun error
-//  Bit1    Framing error
-//  Bit0    Parity error
-.label	acia_status	= acia + 1
-//  Bit7-5  Parity mode
-//  Bit4    Echo on/off
-//  Bit3-2  Transmitter controls
-//  Bit1    Interrupt disable (1: disabled)
-//  Bit0    Negated DTR
-.label	acia_command	= acia + 2
-//  Bit7    Number of stop bits (0: 1, 1: depends on data length)
-//  Bit6-5  Data length (0: 8bit, 1: 7bit, 2: 6bit, 3: 5bit)
-//  Bit4    Receive clock source (0: external, 1: internal)
-//  Bit3-0  Baud rate
-.label	acia_control	= acia + 3
+	//  Bit7    IRq (1: was)
+	//  Bit6    DSR
+	//  Bit5    DCD
+	//  Bit4    Transmit data register empty
+	//  Bit3    Receive data register full
+	//  Bit2    Overrun error
+	//  Bit1    Framing error
+	//  Bit0    Parity error
+	.label	status	= acia_base + 1
+	//  Bit7-5  Parity mode
+	//  Bit4    Echo on/off
+	//  Bit3-2  Transmitter controls
+	//  Bit1    Interrupt disable (1: disabled)
+	//  Bit0    Negated DTR
+	.label	command	= acia_base + 2
+	//  Bit7    Number of stop bits (0: 1, 1: depends on data length)
+	//  Bit6-5  Data length (0: 8bit, 1: 7bit, 2: 6bit, 3: 5bit)
+	//  Bit4    Receive clock source (0: external, 1: internal)
+	//  Bit3-0  Baud rate
+	.label	control	= acia_base + 3
+}
 
 .label	pio_parport 	= $fd10
 .label	pio_keyboard 	= $fd30
@@ -52,17 +54,17 @@
 .label	tcbm_8		= $fef0
 .label	tcbm_9		= $fec0
 .namespace tcbm {
-.label	data	= tcbm_9 + 0
-//  Bit1    status 1
-//  Bit0    status 0
-.label	status	= tcbm_9 + 1
-//  Bit7    DAV
-//  Bit6    ACK
-.label	handshake	= tcbm_9 + 2
-// 1=out// 0=in
-.label	data_dir	= tcbm_9 + 3
-.label	status_dir	= tcbm_9 + 4
-.label	handshake_dir	= tcbm_9 + 5
+	.label	data	= tcbm_9 + 0
+	//  Bit1    status 1
+	//  Bit0    status 0
+	.label	status	= tcbm_9 + 1
+	//  Bit7    DAV
+	//  Bit6    ACK
+	.label	handshake	= tcbm_9 + 2
+	// 1=out// 0=in
+	.label	data_dir	= tcbm_9 + 3
+	.label	status_dir	= tcbm_9 + 4
+	.label	handshake_dir	= tcbm_9 + 5
 }
 	
 // Custom expansions
