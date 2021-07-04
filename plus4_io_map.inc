@@ -103,3 +103,10 @@
 .label	sid_solder	= $fd40
 .label	nae_control	= $fd80
 .label	sid_csory		= $fe80
+
+// AY-3-8910 (DIGIMUZ) registers
+.namespace ay {
+	.label	read	= $fd21
+	.label	write	= read + 1
+	.label	address	= write + 1
+}

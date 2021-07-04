@@ -257,10 +257,33 @@ setsidc64:
 #endif
 
 #if	HAS_TED
-detay:  rts
+detay:  .byte $f2
+	ldy	#15
+	lda	#0
+!:	jsr	writeayreg
+	dey
+	bpl	!-
+
+	ldy #1
+	lda #%01011010
+	jsr writeayreg
+	jsr readayreg
+	and #%1111
+	cmp #%1010
+	bne !+
 	lda #%1000
 	ora io_soundtype
 	sta io_soundtype
+!:	rts
+
+writeayreg:
+	sty	ay.address
+	sta	ay.write
+	rts
+
+readayreg:
+	sty	ay.address
+	lda	ay.read
 	rts
 #endif
 
