@@ -102,11 +102,31 @@
 
 .label	sid_solder	= $fd40
 .label	nae_control	= $fd80
-.label	sid_csory		= $fe80
+.label	sid_csory	= $fe80
 
 // AY-3-8910 (DIGIMUZ) registers
+// write register number to address then read from read register or write to write register
 .namespace ay {
 	.label	read	= $fd21
 	.label	write	= read + 1
 	.label	address	= write + 1
+}
+
+// SideKick NeoRAM
+// block: select 16k block of memory (max. 4M)
+// window: select 256 byte window within selected block
+// page: bit 7 of ram address (select 128B block within window)
+.namespace neoram {
+	.label	ram	= $fe00
+	.label	window	= $fde8
+	.label	block	= window + 1
+	.label	page	= block + 1
+}
+
+
+// SideKick OPL2 FM
+// Write register number to address register, wait 6us, read/write data register and wait 35us
+.namespace fm {
+	.label	address	= $fde2
+	.label	data	= $fdf2
 }
