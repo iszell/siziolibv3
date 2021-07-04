@@ -33,7 +33,7 @@
 
 	cli
 	ldx	#'e'
-	ldy	#'1'
+	ldy	#'x'
 	jsr	iolib.decrunch
 	sta	ted.romen
 	bcs	error
