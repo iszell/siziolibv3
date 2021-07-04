@@ -6,8 +6,8 @@
 	.encoding	"petscii_mixed"
 
 	jsr	primm
-	.byte	13
 	.text	"IOLibV3 Exomizer test by Siz"
+	.byte	13
 	.text	"(c) 2016.04.02"
 	.byte	14, 13, 0
 
