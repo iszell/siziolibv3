@@ -5,3 +5,5 @@
 *.lst
 *.tmp
 *.log
+*.sym
+*.bak
