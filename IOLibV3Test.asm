@@ -1,7 +1,7 @@
-#import	"plus4_basic_header.inc"
-#import "plus4_io_map.inc"
-#import "ted.inc"
-#import "plus4_kernal_table.inc"
+	#import	"plus4_basic_header.inc"
+	#import	"plus4_io_map.inc"
+	#import	"ted.inc"
+	#import	"plus4_kernal_table.inc"
 
 	.encoding	"petscii_mixed"
 

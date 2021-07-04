@@ -1,12 +1,13 @@
-#import	"plus4_basic_header.inc"
-#import "plus4_io_map.inc"
-#import "ted.inc"
-#import "plus4_kernal_table.inc"
+	#import	"plus4_basic_header.inc"
+	#import	"plus4_io_map.inc"
+	#import	"ted.inc"
+	#import	"plus4_kernal_table.inc"
 
 	.encoding	"petscii_mixed"
 
 	jsr	primm
 	.byte	13
+	.text	"IOLibV3 Exomizer test by Siz"
 	.text	"(c) 2016.04.02"
 	.byte	14, 13, 0
 
