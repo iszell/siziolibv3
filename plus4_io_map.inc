@@ -128,5 +128,6 @@
 // Write register number to address register, wait 6us, read/write data register and wait 35us
 .namespace fm {
 	.label	address	= $fde2
-	.label	data	= $fdf2
+	.label	status	= address
+	.label	data	= address + $10
 }

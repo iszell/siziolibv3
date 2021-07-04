@@ -257,23 +257,22 @@ setsidc64:
 #endif
 
 #if	HAS_TED
-detay:  .byte $f2
-	ldy	#15
+detay:  ldy	#15
 	lda	#0
 !:	jsr	writeayreg
 	dey
 	bpl	!-
 
-	ldy #1
-	lda #%01011010
-	jsr writeayreg
-	jsr readayreg
-	and #%1111
-	cmp #%1010
-	bne !+
-	lda #%1000
-	ora io_soundtype
-	sta io_soundtype
+	ldy	#1
+	lda	#%01011010
+	jsr	writeayreg
+	jsr	readayreg
+	and	#%1111
+	cmp	#%1010
+	bne	!+
+	lda	#%1000
+	ora	io_soundtype
+	sta	io_soundtype
 !:	rts
 
 writeayreg:
@@ -287,10 +286,54 @@ readayreg:
 	rts
 #endif
 
-detfm:  rts
-	lda #%10000
-	ora io_soundtype
-	sta io_soundtype
+detfm:	{
+	ldy	#4
+	lda	#$60
+	jsr	writefmreg
+	lda	#$80
+	jsr	writefmreg
+	lda	fm.status
+	and	#$e0
+	sta	fmstat1
+	ldy	#2
+	lda	#$ff
+	jsr	writefmreg
+	ldy	#4
+	lda	#$21
+	jsr	writefmreg
+	.for	(var i=0; i<72; i++) nop
+	lda	fm.status
+	and	#$e0
+	sta	fmstat2
+	ldy	#4
+	lda	#$60
+	jsr	writefmreg
+	lda	#$80
+	jsr	writefmreg
+	
+
+.label	fmstat1	= *+1
+	lda	#0
+	bne	!+
+
+.label	fmstat2	= *+1
+	lda	#0
+	cmp	#$c0
+	bne	!+
+
+	lda	#%10000
+	ora	io_soundtype
+	sta	io_soundtype
+!:	rts
+}
+
+// 6us: 11 NTSC double cycles
+// 35us: 63 NTSC double cycles
+writefmreg:
+	sty	fm.address
+	.for	(var i=0; i<6; i++) nop
+	sta	fm.data
+	.for	(var i=0; i<32; i++) nop
 	rts
 
 ystore:	.byte	0
