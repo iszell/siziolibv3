@@ -17,7 +17,7 @@ drive types as possible.
 * uses serial protocol based on number of serial drives detected
   - TODO: currently only the multi-drive protocol is implemented
   - for parallel and TCBM interfaces the number of drives is not important and not used
-* DOS compatible, sector based (NOT A TRACKLOADER)
+* DOS compatible, sector based (_NOT_ A TRACKLOADER)
   - this ensures compatiblity with non-GCR drives
   - but it's not so fast
 
@@ -98,22 +98,24 @@ installs loader. In this init part you have to include two sources:
 - `iolib.inc`: the library itself. It can be compiled to any memory location
 You also have to define which modules needed. For example:
 ```
-io_prtstatus = 1
-io_needmemdetect = 1
-io_needvideodetect = 1
-io_needsounddetect = 1
-io_needloader = 1
-io_needdecrunch = 0
+.namespace iolib {
+	#define	prtstatus
+	#define need_video_detect
+	#define need_memory_detect
+	#define need_sound_detect
+	#define need_loader
+	#define need_exodecrunch
+}
 ```
 You have to call two functions:
-- `io_detect` to do hardware detection
-- `io_init` to initialize the loader. This will install the loader from $fc00-$fcff
+- `iolib.detect` to do hardware detection
+- `iolib.init` to initialize the loader. This will install the loader from $fc00-$fcff
   with some variables from $fbfb-fbff.
-  If you use exomizer decruncher it will occupy $fa80-$fbfa.
+  If you use exomizer decruncher it will occupy $fa70-$fbef.
 
 After that you only have to do the following in your parts:
 - include `iolib_def.inc`
-- call `io_load` or `io_decrunch` with first character of file name in XR and second
+- call `iolib.load` or `iolib.decrunch` with first character of file name in XR and second
   one in YR
 
 For variables set by detection check the contents of iolib_def.inc.
@@ -121,7 +123,7 @@ For variables set by detection check the contents of iolib_def.inc.
 # 4. Memory used
 Address | Usage
 ------- | -----
-$02/$03 | Init only (you can safely use it after io_init)
+$02/$03 | Init only (you can safely use it after iolib.init)
 $9e/$9f | Non-exomizer load pointer (you can use it but it will be destroyed during non-exomizer loads)
 $a7/$a8, $ae/$af, $fc-$ff | Exomizer decruncher only. Free if you don't use exomizer
 $b7 | Serial load shift area. Not used on non-serial drives
