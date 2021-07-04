@@ -1,112 +1,164 @@
-sidptr	=	2
+	.print	". sound source detection"
+	.namespace iolib {
 
-io_det_sound
+detect_sound:
+{
+.label	sidptr	=	2
+
 	lda	sidptr
 	pha
 	lda	sidptr+1
 	pha
-.if	ted_romen
+// Detect SID address
+#if	HAS_TED
 	sei
-	sta ted_ramen
-.endif
+	sta ted.ramen
+#endif
 	lda #0
 	sta io_soundtype
 	ldx #<sid_solder
 	ldy #>sid_solder
 	jsr io_detsidaddr
 	cmp #$ff
-	beq +
+	beq soldersid
 	ldx #<sid_csory
 	ldy #>sid_csory
 	jsr io_detsidaddr
 	cmp #$ff
-	bne ++
-+	inc io_soundtype
+	bne nosiddet
+soldersid:
+	inc io_soundtype
+// Detect SID type
 	jsr detsidtp
-.if	nae_control
+// Detect NAE
+#if	HAS_TED
 	jsr detnae
-.endif
+#endif
 	ldx sidptr
 	ldy sidptr+1
 	stx io_sidbase
 	sty io_sidbase+1
-+
-.if	ted_romen
-	sta ted_romen
+nosiddet:
+// Detect AY (DIGIMUZ)
+#if	HAS_TED
+	jsr detay
+#endif
+// Detect FM
+	jsr detfm
+
+// Print result
+#if	HAS_TED
+	sta ted.romen
 	cli
-.endif
-	.if	io_prtstatus
+#endif
+	#if	prtstatus
 	jsr	primm
-	.null	" Sound: "
+	.text	" Sound: "
+	.byte	0
+#if	HAS_TED
+	jsr	primm
+	.text	"TED "
+	.byte	0
+#endif
+// Print SID
+#if	HAS_TED
 	sei
-	sta	ted_ramen
+	sta	ted.ramen
+#endif
 	lda	io_soundtype
-	sta	ted_romen
+	and	#%111
+#if	HAS_TED
+	sta	ted.romen
 	cli
-.if	nae_control
-	bmi	++
-	sei
-	sta	ted_ramen
-	lda	io_soundtype
-	sta	ted_romen
-.endif
-	bne	+
+#endif
+	beq	nosid
+	pha
+	and	#%100
+	bne	!+
 	jsr	primm
-	.null	"TED"
-	jmp	++++
-+	jsr	primm
-	.null	"SIDCard"
-.if	nae_control
-	jmp	++
-+	jsr	primm
-	.null	"NAE v"
+	      // NAE 1.2
+	.text	"SIDCard"
+	.byte	0
+	jmp	!++
+!:	jsr	primm
+	.text	"NAE "
+	.byte	0
 	lda	nae_control+15
 	pha
 	lsr
 	lsr
 	lsr
 	lsr
-	ora	#"0"
+	ora	#'0'
 	jsr	chrout
-	lda	#"."
+	lda	#'.'
 	jsr	chrout
 	pla
 	and	#%00001111
-	ora	#"0"
+	ora	#'0'
 	jsr	chrout
-.endif
-+	jsr	primm
-	.null	" with "
-	sei
-	sta	ted_ramen
-	lda	io_soundtype
-	sta	ted_romen
-	cli
-	asl
+!:	lda	#'/'
+	jsr	chrout
+	pla
+	and	#%10
 	asl
 	tax
 	ldy	#4
--	lda	io_sidtypes-4,x
+!:	lda	io_sidtypes,x
 	jsr	chrout
 	inx
 	dey
-	bne	-
-+	jsr	io_prtcr
-	.endif
+	bne	!-
+	jsr	prtspc
+nosid:	
+// Print AY
+#if	HAS_TED
+	sei
+	sta	ted.ramen
+#endif
+	lda	#%1000
+	bit	io_soundtype
+#if	HAS_TED
+	sta	ted.romen
+	cli
+#endif
+	beq	noay
+	jsr	primm
+	.text	"AY "
+	.byte	0
+noay:
+// Print FM
+#if	HAS_TED
+	sei
+	sta	ted.ramen
+#endif
+	lda	#%10000
+	bit	io_soundtype
+#if	HAS_TED
+	sta	ted.romen
+	cli
+#endif
+	beq	nofm
+	jsr	primm
+	.text	"FM"
+	.byte	0
+nofm:
+	jsr	prtcr
+	#endif
 	pla
 	sta	sidptr+1
 	pla
 	sta	sidptr
 	rts
 	
-; Detect SID address
-;=======================================
-;  In: XR: SID address low
-;      YR: SID address high
-; Out: AC: 0: not found $ff: found
-;=======================================
+// Detect SID address
+//=======================================
+//  In: XR: SID address low
+//      YR: SID address high
+// Out: AC: 0: not found $ff: found
+//=======================================
 
-io_detsidaddr	
+io_detsidaddr:
 	lda #0
 	sta io_sidbase
 	sta io_sidbase+1
@@ -115,9 +167,9 @@ io_detsidaddr
 	sty sidptr+1
 	
 	ldy #24
--	sta (sidptr),y
+!:	sta (sidptr),y
 	dey
-	bpl -
+	bpl !-
 	
 	ldy #25
 	lda (sidptr),y
@@ -125,61 +177,59 @@ io_detsidaddr
 	and (sidptr),y
 	rts
 	
-;=======================================
-; Detect NST SIDCard
-;=======================================
+//=======================================
+// Detect NST SIDCard
+//=======================================
 
-.if	nae_control
-detnae	lda #%11100000
+#if	HAS_TED
+detnae:	lda #%11100000
 	sta nae_control+13
 	ldx #0
--	lda nae_control+15
+!:	lda nae_control+15
 	cmp nae_control+15
-	bne +
+	bne !+
 	dex
-	bne -
+	bne !-
 	and #%11100000
 	cmp #%11100000
-	beq +		; Legacy SID-Card
+	beq !+		// Legacy SID-Card
 	lda nae_control+15
-	beq +		; VICE :)
+	beq !+		// VICE :)
 	lda io_soundtype
-	ora #%10000000
--	sta io_soundtype
-+	rts
-.endif
-	
-; Detect SID chip type
-; original version from Reflex Math demo
-;=======================================
-	
-detsidtp	lda #1
+	ora #%100
 	sta io_soundtype
+!:	rts
+#endif
 	
-;Set a low frequency for Oscillator
-; (Voice 3) #$0200 which is somewhere
-; between B-0 and C-1, according to demo
+// Detect SID chip type
+// original version from Reflex Math demo
+//=======================================
+	
+detsidtp:
+//Set a low frequency for Oscillator
+// (Voice 3) #$0200 which is somewhere
+// between B-0 and C-1, according to demo
 	
 	ldy #15
 	lda #$02
 	sta (sidptr),y
 	
-;Set Sawtooth and Triangle waveforms for
-;voice 3 and start release of ADSR
+//Set Sawtooth and Triangle waveforms for
+//voice 3 and start release of ADSR
 	
 	ldy #18
 	lda #%00110000
 	sta (sidptr),y
 	
-;Check if output of voice 3 ever goes
-;higher than $80. It's only possible on
-;new SID chip (8580) and never on the
-;old one (6581)
+//Check if output of voice 3 ever goes
+//higher than $80. It's only possible on
+//new SID chip (8580) and never on the
+//old one (6581)
 	
 	ldy #0
 	ldx #0
 	sty ystore
-loop2	ldy #27
+loop2:	ldy #27
 	lda (sidptr),y
 	bmi newsid
 	dex
@@ -189,25 +239,43 @@ loop2	ldy #27
 	sty ystore
 	bne loop2
 	beq oldsid
-newsid	inc io_soundtype
-oldsid	rts
+newsid:	lda #%10
+	ora io_soundtype
+	sta io_soundtype
+oldsid:	rts
 
-.if	nae_control
-setsidc64
-	.if	io_prtstatus
+#if	HAS_TED
+setsidc64:
+	#if	prtstatus
 	jsr	primm
 	.text	" Switching NAE to C64 clock"
 	.byte	13, 0
-	.endif
+	#endif
 	lda #$d1
 	sta nae_control+13
 	rts
-.endif
+#endif
 
-ystore	.byte	0
+#if	HAS_TED
+detay:  rts
+	lda #%1000
+	ora io_soundtype
+	sta io_soundtype
+	rts
+#endif
 
-	.if	io_prtstatus
-io_sidtypes
+detfm:  rts
+	lda #%10000
+	ora io_soundtype
+	sta io_soundtype
+	rts
+
+ystore:	.byte	0
+
+	#if	prtstatus
+io_sidtypes:
 	.text	"6581"
 	.text	"8580"
-	.endif
+	#endif
+}
+}

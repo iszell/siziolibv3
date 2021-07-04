@@ -1,73 +1,65 @@
+	#import	"plus4_basic_header.inc"
+	#import	"plus4_io_map.inc"
+	#import	"ted.inc"
+	#import	"plus4_kernal_table.inc"
 
-	.include	"basic_header.inc"
-	.include	"kernal-table.inc"
+	.encoding	"petscii_mixed"
 
 	jsr	primm
 	.text	"IOLibV3 test by Siz (c) 2014.06.03"
 	.byte	14, 13, 0
 
-	jsr	io_detect
-	lda	io_drivetyp
-	bne	+
+	jsr	iolib.detect
+	lda	iolib.drivedetect.io_drivetyp
+	bne	!+
 	rts
-+	jsr	io_init
+!:	jsr	iolib.init
 	jsr	primm
 	.byte	13
-	.null	"Testing loader: "
+	.text	"Testing loader: "
+	.byte	0
 	sei
 	lda	#<irq
 	ldx	#>irq
 	sta	$fffe
 	stx	$ffff
 	lda	#%00000010
-	sta	ted_irqmask
+	sta	ted.irqmask
 	lda	#220
-	sta	ted_rasterirqline
-	sta	ted_ramen
+	sta	ted.rasterirqline
+	sta	ted.ramen
 	lda	#0
 	sta	counter
 	sta	counter+1
 	sta	counter+2
 	sta	counter+3
 	cli
-	ldx	#"t"
-	ldy	#"e"
-	jsr	io_load
-;	lda	$efff
-;	pha
-;	dec	ted_border
-;	ldx	#"t"
-;	ldy	#"e"
-;	jsr	io_load
+	ldx	#'t'
+	ldy	#'e'
+	jsr	iolib.load
 	lda	#%00000010
-	sta	ted_irqmask
-;	pla
-;	tax
+	sta	ted.irqmask
 	php
 	lda	$efff
-;	pha
-	sta	ted_romen
+	sta	ted.romen
 	tax
 	lda	#0
 	jsr	lnprt
-;	jsr	io_prtspc
-;	pla
-;	tax
-;	lda	#0
-;	jsr	lnprt
-	jsr	io_prtspc
+	jsr	iolib.prtspc
 	plp
-	bcs	+
+	bcs	!+
 	jsr	primm
-	.null	"no "
-+	jsr	primm
+	.text	"no "
+	.byte	0
+!:	jsr	primm
 	.text	"error"
 	.byte	13
-	.null	"load took "
+	.text	"load took "
+	.byte	0
 	lda	counter
 	ldx	counter+1
 	jsr	lnprt
-	lda	#":"
+	lda	#':'
 	jsr	chrout
 	lda	counter+2
 	ldx	counter+3
@@ -75,32 +67,32 @@
 	jsr	primm
 	.text	" frames"
 	.byte	13, 0
-;	inc	ted_border
 	rts
 	
-irq	inc	ted_border
+irq:	inc	ted.border
 	pha
-	lda	ted_irqsource
-	sta	ted_irqsource
+	lda	ted.irqsource
+	sta	ted.irqsource
 	inc	counter+3
-	bne	+
+	bne	!+
 	inc	counter+2
-	bne	+
+	bne	!+
 	inc	counter+1
-	bne	+
+	bne	!+
 	inc	counter
-+	pla
-	dec	ted_border
+!:	pla
+	dec	ted.border
 	rti
 
-io_prtstatus = 1
-io_needmemdetect = 1
-io_needvideodetect = 1
-io_needsounddetect = 1
-io_needloader = 1
-io_needdecrunch = 0
-	.include	"iolib_def.inc"
-	.include	"iolib.inc"
-
-counter	.word	0
+counter:
 	.word	0
+	.word	0
+
+.namespace iolib {
+	#define	prtstatus
+	#define need_video_detect
+	#define need_memory_detect
+	#define need_sound_detect
+	#define need_loader
+}
+#import "iolib.inc"
