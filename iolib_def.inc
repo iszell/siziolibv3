@@ -29,7 +29,7 @@
 //  6: 2048k
 //  7: 4096k
 // bit 5
-//  SideKick GeoRAM present
+//  SideKick NeoRAM present
 // bit 6
 //  Hannes expansion present
 // bit 7
