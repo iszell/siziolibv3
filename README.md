@@ -127,7 +127,7 @@ $02/$03 | Init only (you can safely use it after iolib.init)
 $9e/$9f | Non-exomizer load pointer (you can use it but it will be destroyed during non-exomizer loads)
 $a7/$a8, $ae/$af, $fc-$ff | Exomizer decruncher only. Free if you don't use exomizer
 $b7 | Serial load shift area. Not used on non-serial drives
-$fa80-$fbfa | Exomizer decruncher resident part
+$fa70-$fbef | Exomizer decruncher resident part
 $fbfb-$fbff | Work area
 $fc00-$fcff | Loader resident part
 $ff40-$ffdc | Exomizer decruncher work area. Will be overwritten during Exomizer load.
