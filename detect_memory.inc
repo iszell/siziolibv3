@@ -3,6 +3,9 @@
 
 detect_memsize:
 {
+#if !HAS_TED
+	rts
+#else
 .label	testaddr	=	$fcff
 	sei
 	ldy	#0
@@ -167,5 +170,6 @@ io_detmemtemp:
 io_ramsizes:
 	.word 16, 32, 64, 128, 256, 512, 1024, 2048, 4096
 	#endif
+#endif
 }
 }

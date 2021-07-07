@@ -18,3 +18,8 @@
 //  registers destroyed:
 //   unknown
 .label hexbout	= $fb10
+
+.label	defkey	= $ff49
+.label	print	= $ff4c
+.label	primm	= $ff4f
+.label	monitor	= $ff52

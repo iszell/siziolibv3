@@ -3,11 +3,6 @@
 
 .label	st	= $90
 
-.label	defkey	= $ff49
-.label	print	= $ff4c
-.label	primm	= $ff4f
-.label	monitor	= $ff52
-
 .label	vidinit	= $ff81
 .label	ioinit	= $ff84
 .label	ramtest	= $ff87

@@ -123,7 +123,6 @@
 	.label	page	= block + 1
 }
 
-
 // SideKick OPL2 FM
 // Write register number to address register, wait 6us, read/write data register and wait 35us
 .namespace fm {

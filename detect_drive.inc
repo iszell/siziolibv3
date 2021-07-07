@@ -4,7 +4,11 @@
 detect_drive:
 .namespace drivedetect {
 .label	io_ptr		= 2
+#if	HAS_TED
 .label	currdrive	= $ae
+#else
+.label	currdrive	= $ba
+#endif
 .const	lastdrive	= 30
 io_det_drive:
 // default to drive 8 if last used # is less than that
@@ -89,12 +93,14 @@ io_detdrvnotpresent:
 	pha
 	lda	io_driveiftyp
 	pha
+#if	HAS_TED
 	sei
 	sta	ted.ramen
 	lda	io_tcbmoffs
 	pha
 	sta	ted.romen
 	cli
+#endif
 !:	ldx	currdrive
 	inx
 	cpx	#lastdrive
@@ -109,8 +115,10 @@ io_detdrvnotpresent:
 	jsr	prtcr
 	#endif
 	// restore interface and current drive
+#if	HAS_TED
 	pla
 	sta	io_tcbmoffs
+#endif
 	pla
 	cmp	#1
 	bne	!+ // not serial
@@ -335,7 +343,7 @@ end:	pla
 	dey
 	bne	nottcbm
 	// YR was 3 (TCBM)
-
+#if	HAS_TED
 	lda	currdrive
 	ldy	#$30
 	cmp	#8
@@ -353,11 +361,12 @@ end:	pla
 	and	#%00000010
 	bne	io_detdrvcurriffail
 	beq	end
-
+#endif
 nottcbm:
 	dey
 	bne	io_detdrvcurriffail
 	// YR was 4 (parallel) - do actual parallel probe
+#if	HAS_TED
 	lda	#$ff
 	sta	pio_parport
 	sta	mwdta
@@ -378,12 +387,14 @@ nottcbm:
 	jsr	writemem
 	jsr	chkfd10
 	bcc	ser
+#endif
 io_detdrvcurriffail:
 	pla
 	sec
 	rts
 }
-	
+
+#if	HAS_TED
 chkfd10:
 	ldy	#0
 	lda	pio_parport
@@ -395,6 +406,7 @@ chkfd10:
 	.byte $24 //bit $xx
 !:	clc
 	rts
+#endif
 
 // Write drive memory
 //=======================================

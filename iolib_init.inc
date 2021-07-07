@@ -1,4 +1,3 @@
-	.print	". loader init"
 	.namespace iolib {
 
 init:
@@ -6,6 +5,7 @@ init:
 .label	ptr	=	2
 
 #if	need_loader
+	.print	". loader init"
 	jsr	initloader
 #endif
 	rts
@@ -403,6 +403,6 @@ io_decrunchdata:
 .label io_decrunchdatasize=*-io_decrunchdata
 #endif
 
-// #endif
+#endif
 }
 }

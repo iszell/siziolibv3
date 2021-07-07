@@ -3,7 +3,11 @@
 .namespace iolib {
 // IOLibV3 definitions to be included in programs where you use it
 
+#if HAS_TED
 .label	io_base		= $fc00
+#else
+.label	io_base		= $cf00
+#endif
 .label	io_data		= io_base-5
 // Compress data to be loaded with "exomizer mem -f" command
 // parameters: X: file name first byte, Y: file name second byte

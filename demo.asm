@@ -18,6 +18,24 @@
 	rts
 !:	jsr	iolib.init
 
+	lda	#0
+!:	sta	pio_keyboard
+	sta	ted.keyblatch
+	ldx	ted.keyblatch
+	inx
+	bne	!-
+
+	jsr	primm
+	.text	"Press any key to start..."
+	.byte	0
+
+	lda	#0
+!:	sta	pio_keyboard
+	sta	ted.keyblatch
+	ldx	ted.keyblatch
+	inx
+	beq	!-
+
 	ldx	#0
 !:
 	.for	(var i=0; i<4; i=i+1) {

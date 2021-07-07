@@ -22,8 +22,6 @@
 //	2020.05.30: change copyright message
 //	2021.06.17: migrate sources to KickAss
 
-	#import	"plus4_kernal_table.inc"
-	#import "ted.inc"
 	#import "iolib_def.inc"
 
 	.print	"Siz IOLibV3 startup code"
@@ -50,15 +48,14 @@ detect:
 	#if	need_sound_detect
 	jsr	detect_sound
 	#endif
-	#if	need_loader
 	jsr	detect_drive
-	#endif
 	rts
 
 #if	need_video_detect
 	.print	". video standard detection"
 detect_video:
 {
+#if	HAS_TED
 	#if	prtstatus
 	jsr	primm
 	.text	" Video standard: "
@@ -78,6 +75,7 @@ detect_video:
 	bne	!-
 	jsr	prtcr
 	#endif
+#endif
 	rts
 
 	#if	prtstatus
@@ -99,8 +97,6 @@ prtcr:	lda	#13
 #if	need_sound_detect
 	#import	"detect_sound.inc"
 #endif
-#if	need_loader
 	#import	"detect_drive.inc"
-#endif
  	#import	"iolib_init.inc"
 }

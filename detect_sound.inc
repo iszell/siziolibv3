@@ -16,6 +16,7 @@ detect_sound:
 #endif
 	lda #0
 	sta io_soundtype
+#if	HAS_TED
 	ldx #<sid_solder
 	ldy #>sid_solder
 	jsr io_detsidaddr
@@ -27,6 +28,12 @@ detect_sound:
 	cmp #$ff
 	bne nosiddet
 soldersid:
+#else
+	ldx #<$d400
+	ldy #>$d400
+	stx sidptr
+	sty sidptr+1
+#endif
 	inc io_soundtype
 // Detect SID type
 	jsr detsidtp
@@ -75,6 +82,7 @@ nosiddet:
 	pha
 	and	#%100
 	bne	!+
+#if	HAS_TED
 	jsr	primm
 	      // NAE 1.2
 	.text	"SIDCard"
@@ -99,6 +107,7 @@ nosiddet:
 	jsr	chrout
 !:	lda	#'/'
 	jsr	chrout
+#endif
 	pla
 	and	#%10
 	asl
