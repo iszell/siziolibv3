@@ -10,7 +10,9 @@
 		[name="TESTPATTERN", type="prg", segments="testdata" ],
 		[name="B1", type="prg", segments="bitmapdata" ],
 		[name="E1", type="prg", segments="bitmapexodata" ],
-		[name="EXOTESTDATA", type="prg", segments="exotestdata" ]
+		[name="EXOTESTDATA", type="prg", segments="exotestdata" ],
+		[name="HWDETECT PLUS/4", type="prg", segments="hwdetplus4" ],
+		[name="HWDETECT C64", type="prg", segments="hwdetc64" ]
 	}
 
 	.segment demo []
@@ -46,3 +48,11 @@
 		* = $5800
 		.import c64 "dotctitle.bin"
 	}
+
+	.segment hwdetplus4 []
+	* = $1001
+	.import c64 "hwdetectplus4.prg"
+
+	.segment hwdetc64 []
+	* = $1001
+	.import c64 "hwdetect64.prg"
