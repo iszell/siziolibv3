@@ -21,11 +21,11 @@
 
 	.segment iolibv3test []
 	* = $1001
-	.import c64 "IOLibV3Test.prg"
+	.import c64 "iolibv3test.prg"
 
 	.segment iolibv3exotest []
 	* = $1001
-	.import c64 "IOLibV3ExoTest.prg"
+	.import c64 "iolibv3exotest.prg"
 
 	.segment testdata []
 	* = $3000
