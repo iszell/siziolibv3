@@ -42,6 +42,8 @@ io_detnextdrvtp:
 	jsr	io_detcurrdrv
 	cpy	#0
 	bne	!+
+	jsr	detvcpu
+	bcc	!+
 	jsr	io_detbysts
 !:	jsr	io_detdrvif
 	#if	prtstatus
@@ -59,8 +61,9 @@ io_detnextdrvtp:
 	asl
 	asl
 	asl
+	asl
 	tax
-	ldy	#8
+	ldy	#16
 !:	lda	io_drivenames,x
 	cmp	#' '
 	beq	!+
@@ -103,7 +106,7 @@ io_detdrvnotpresent:
 #endif
 !:	ldx	currdrive
 	inx
-	cpx	#lastdrive
+	cpx	#lastdrive+1
 	bne	io_detnextdrvtp
 	#if	prtstatus
 	jsr	primm
@@ -216,53 +219,31 @@ readmem:
 	ldx	xtmp
 	rts
 
+detvcpu:
+{
+	ldx	#'z'
+	ldy	#'i'
+	jsr	readstatus
+	bcc	!+
+	rts
+!:	lda	statustxt
+	cmp	#'3'
+	beq	!+
+	ldy	#11
+	sty	io_drivetyp
+	clc
+	.byte	$24
+!:	sec
+	rts
+}
+
 io_detbysts:
 {
-	ldx	#statustxte-statustxt-1
-	lda	#0
-!:	sta	statustxt,x
-	dex
-	bpl	!-
-	ldx	currdrive
-	lda	#15
-	tay
-	jsr	setlfs
-	lda	#0
-	jsr	setnam
-	jsr	open
-	lda	st
-	beq	!+
-	jmp	enderr
-!:	ldx	#15
-	jsr	chkout
-	lda	st
-	bne	enderr
-	lda	#'u'
-	jsr	chrout
-	lda	st
-	bne	enderr
-	lda	#'i'
-	jsr	chrout
-	lda	st
-	bne	enderr
-	lda	#0
-	sta	statuslen
-	jsr	open
-	lda	st
-	bne	enderr
-	ldx	#15
-	jsr	chkin
-	lda	st
-	bne	enderr
-!:	jsr	chrin
-	ldx	statuslen
-	sta	statustxt,x
-	inc	statuslen
-	bit	st
-	bvs	!+
-	lda	st
-	bne	enderr
-	beq	!-
+	ldx	#'u'
+	ldy	#'i'
+	jsr	readstatus
+	bcc	!+
+	rts
 !:
 // analyze result status string
 	lda	#<io_drivestsstr
@@ -298,7 +279,60 @@ nextsts:
 	inc	io_ptr+1
 !:	cmp	#<io_drivestsstre
 	bne	cmpsts
-	
+!:	clc
+}
+
+readstatus:
+{
+	stx	command1
+	sty	command2
+	ldx	#statustxte-statustxt-1
+	lda	#0
+!:	sta	statustxt,x
+	dex
+	bpl	!-
+	ldx	currdrive
+	lda	#15
+	tay
+	jsr	setlfs
+	lda	#0
+	jsr	setnam
+	jsr	open
+	lda	st
+	beq	!+
+	jmp	enderr
+!:	ldx	#15
+	jsr	chkout
+	lda	st
+	bne	enderr
+.label	command1=*+1
+	lda	#0
+	jsr	chrout
+	lda	st
+	bne	enderr
+.label	command2=*+1
+	lda	#0
+	jsr	chrout
+	lda	st
+	bne	enderr
+	lda	#0
+	sta	statuslen
+	jsr	open
+	lda	st
+	bne	enderr
+	ldx	#15
+	jsr	chkin
+	lda	st
+	bne	enderr
+!:	jsr	chrin
+	ldx	statuslen
+	sta	statustxt,x
+	inc	statuslen
+	bit	st
+	bvs	!+
+	lda	st
+	bne	enderr
+	beq	!-
 !:	clc
 	.byte $24  // bit $xx
 enderr:	sec
@@ -311,7 +345,7 @@ enderr:	sec
 }
 
 io_detdrvif:
-	lda	#	0
+	lda	#0
 	sta	io_driveiftyp
 	ldx	#0
 !:	lda	iftable,x
@@ -434,36 +468,36 @@ writemem:
 
 	#if	prtstatus
 io_prtdrivenum:
+	ldx	#0
 	lda	currdrive
-	cmp	#10
-	bcs	!+
-	pha
-	lda	#'0'
-	jsr	chrout
-	pla
-	jmp	!++
-!:	sec
+!:	cmp	#10
+	bcc	!+
+	inx
+	sec
 	sbc	#10
-	pha
-	lda	#'1'
+	bcs	!-
+!:	pha
+	txa
+	ora	#'0'
 	jsr	chrout
 	pla
-!:	ora	#'0'
+	ora	#'0'
 	jmp	chrout
 
 io_drivenames:
-		//01234567
-	.text	"unknown " //  0
-	.text	"1540    " //  1
-	.text	"1541    " //  2
-	.text	"1541C   " //  3
-	.text	"1541-II " //  4
-	.text	"1551    " //  5
-	.text	"1570    " //  6
-	.text	"1571    " //  7
-	.text	"1581    " //  8
-	.text	"RF-501C " //  9
-	.text	"SD2IEC  " // 10
+	       //0123456789abcdef
+	.text	"unknown         " //  0
+	.text	"1540            " //  1
+	.text	"1541            " //  2
+	.text	"1541C           " //  3
+	.text	"1541-II         " //  4
+	.text	"1551            " //  5
+	.text	"1570            " //  6
+	.text	"1571            " //  7
+	.text	"1581            " //  8
+	.text	"RF-501C         " //  9
+	.text	"SD2IEC          " // 10
+	.text	"SD2IEC/VCPU     " // 11
 io_ifnames:
 		//0123456789abcdef
 	.text	"unsupported     " // 0
@@ -508,13 +542,14 @@ io_drivestsstr:
 	       //0123456
 	.text	"sd2iec"
 	.byte		0, 10
-//	.text	"tdisk", 0, 0, 10 // SD2IEC test
+//	.text	"tdisk"
+//	.byte	0, 0, 10 // SD2IEC test
 io_drivestsstre:
 
 // Format: drive type, interface type
 // 	must be ordered by preffered one first
 iftable:
-	.byte 0,3 //unknown,TCBM
+//	.byte 0,3 //unknown,TCBM
 	.byte 0,0 //unknown,unknown
 	.byte 1,1 //1540,serial
 	.byte 2,4 //1541,parallel
@@ -532,7 +567,8 @@ iftable:
 //	.byte 8,5 //1581,serial burst
 	.byte 8,1 //1581,serial
 	.byte 9,1 //RF501C,serial
-	.byte 10,1//SD2IEC,unknown
+	.byte 10,1//SD2IEC,serial
+	.byte 11,1//SD2IEC/VCPU,serial
 iftblend:
 
 io_drivetyp:

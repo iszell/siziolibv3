@@ -264,7 +264,7 @@ io_loadertab:
 	.byte	2, 4 // 8 1581
 	.byte	2, 2 // 9 RF-501C
 	.byte	2, 7 // a SD2IEC
-	.byte	0, 0 // b
+	.byte	2, 7 // b SD2IEC/VCPU
 	.byte	0, 0 // c
 	.byte	0, 0 // d
 	.byte	0, 0 // e
@@ -297,7 +297,7 @@ io_loadertab:
 	.byte	2, 4 // 8 1581
 	.byte	2, 2 // 9 RF-501C
 	.byte	2, 7 // a SD2IEC
-	.byte	0, 0 // b
+	.byte	2, 7 // b SD2IEC/VCPU
 	.byte	0, 0 // c
 	.byte	0, 0 // d
 	.byte	0, 0 // e
