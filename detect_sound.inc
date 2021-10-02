@@ -87,16 +87,24 @@ nosiddet:
 	      // NAE 1.2
 	.text	"SIDCard"
 	.byte	0
-	jmp	!++
-!:	jsr	primm
-	.text	"NAE "
-	.byte	0
-	lda	nae_control+15
+	jmp	!+++
+!:	lda	nae_control+15
 	pha
 	lsr
 	lsr
 	lsr
 	lsr
+	pha
+	tax
+	lda	#'N'
+	dex
+	beq	!+
+	lda	#'C'
+!:	jsr	chrout
+	jsr	primm
+	.text	"AE "
+	.byte	0
+	pla
 	ora	#'0'
 	jsr	chrout
 	lda	#'.'
