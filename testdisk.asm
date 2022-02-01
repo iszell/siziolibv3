@@ -2,7 +2,7 @@
 
 	.encoding	"petscii_mixed"
 
-	.disk [filename="testdisk.d64", name="IOLIBV3TEST", id="2021!" ]
+	.disk [filename="testdisk.d64", name="IOLIBV3TEST", id="2022!" ]
 	{
 		[name="DEMO", type="prg", segments="demo" ],
 		[name="IOLIBV3TEST", type="prg", segments="iolibv3test" ],

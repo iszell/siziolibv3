@@ -33,7 +33,7 @@ detect:
 	#if	prtstatus
 	jsr	primm
 	.byte	14
-	.text	"IOLibV3 by Siz of Absence (c) 2021"
+	.text	"IOLibV3 by Siz of Absence (c) 2022"
 	.byte	13
 	.text	"Detecting hardware configuration..."
 	.byte	13, 0
