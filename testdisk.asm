@@ -16,43 +16,52 @@
 	}
 
 	.segment demo []
+.print "Demo"
 	* = $1001
 	.import c64 "demo.prg"
 
 	.segment iolibv3test []
+.print "IOLibV3 test"
 	* = $1001
 	.import c64 "iolibv3test.prg"
 
 	.segment iolibv3exotest []
+.print "IOLibV3 exomizer test"
 	* = $1001
 	.import c64 "iolibv3exotest.prg"
 
 	.segment testdata []
+.print "Test data"
 	* = $3000
 	.for(var h=$30 ; h<$f0 ; h++) {
 		.for(var l=0 ; l<256 ; l++) .byte l
 	}
 
 	.segment bitmapdata []
+.print "Test bitmap"
 		* = $2000
 		.import c64 "bitmap1.bin"
 
 	.segment bitmapexodata []
+.print "Test bitmap exomized"
 	.modify ForwardMemExomizer($2000) {
 		* = $2000
 		.import c64 "bitmap1.bin"
 	}
 
 	.segment exotestdata []
+.print "Test data exomized"
 	.modify ForwardMemExomizer($5800) {
 		* = $5800
 		.import c64 "dotctitle.bin"
 	}
 
 	.segment hwdetplus4 []
+.print "Hardware detect plus/4"
 	* = $1001
 	.import c64 "hwdetectplus4.prg"
 
 	.segment hwdetc64 []
+.print "Hardware detect C64"
 	* = $1001
 	.import c64 "hwdetect64.prg"
