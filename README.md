@@ -89,6 +89,7 @@ There is a module for unpacking Exomizer 3.0.1 packed files on-the-fly. To use t
 feature you have to start exomizer with `mem -f` options.
 
 # 3. Usage
+## 3.1 Self-built
 In the included IOLibV3Test.asm source you can see an example how to use the
 library.
 Basically you have to create an initialization part that detects hardware and
@@ -119,6 +120,9 @@ After that you only have to do the following in your parts:
   one in YR
 
 For variables set by detection check the contents of iolib_def.inc.
+
+## 3.2 Pre-compiled
+There is an `INIT.PRG` in the repository which can be used to start your software. All you have to do is put this as the first file in the directory and the program you want to load must be named `II` and that must be compressed with `exomizer mem -f`. After load/decompress a `jmp $100d` will be made.
 
 # 4. Memory used
 Address | Usage
