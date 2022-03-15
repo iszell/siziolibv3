@@ -46,6 +46,7 @@ detect_memsize:
 	jsr	io_detmem_hannes
 	jsr	io_detmem_csory
 !:	jsr	io_detmem_neoram
+	sty	io_detmemtemp
 // Restore detection address contents
 	pla
 	sta	testaddr & $3fff
@@ -58,7 +59,7 @@ detect_memsize:
 
 	#if	prtstatus
 	jsr	primm
-	.text	" RAM size: "
+	.text	" RAM: "
 	.byte	0
 	sei
 	sta	ted.ramen
@@ -90,8 +91,15 @@ detect_memsize:
 !:	pla
 	and	#%00100000
 	beq	!+
+	jsr	prtspc
+	lda	io_detmemtemp
+	asl
+	tay
+	ldx	io_ramsizes,y
+	lda	io_ramsizes+1,y
+	jsr	lnprt
 	jsr	primm
-	.text	" NeoRAM"
+	.text	"k NeoRAM"
 	.byte	0
 !:	jsr	prtcr
 	rts
@@ -227,7 +235,51 @@ io_detmem_csory: {
 }
 
 io_detmem_neoram: {
-	rts
+	ldx	#0
+	stx	neoram.window
+	stx	neoram.block
+	stx	neoram.page
+	lda	#$55
+	sta	neoram.ram
+
+	ldx	#32
+	sta	neoram.ram
+	ldx	#64
+	stx	neoram.window
+	sta	neoram.ram
+	ldx	#128
+	stx	neoram.window
+	sta	neoram.ram
+
+	ldx	#0
+	ldy	#0
+	stx	neoram.window
+	cmp	neoram.ram
+	bne	!+
+	lda	#$aa
+	ldy	#5
+	sta	neoram.ram
+	ldx	#32
+	sta	neoram.window
+	cmp	neoram.ram
+	beq	!+
+	iny
+	ldx	#64
+	sta	neoram.window
+	cmp	neoram.ram
+	beq	!+
+	iny
+	ldx	#128
+	sta	neoram.window
+	cmp	neoram.ram
+	beq	!+
+	iny
+!:	tya
+	beq	!+
+	lda	#%00100000
+	ora	io_ramsize
+	sta	io_ramsize
+!:	rts
 }
 
 io_detmemtemp:
