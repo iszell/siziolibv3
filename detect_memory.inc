@@ -8,14 +8,16 @@ detect_memsize:
 #else
 .label	testaddr	=	$fcff
 	sei
-	ldy	#0
+	ldy	#$ff
+// Reset Csory expansion control
+	sty	ramexpctrl_csory
+// Reset Hannes expansion control
+	sty	ramexpctrl_hannes
+	iny
 	sty	io_ramsize
 	sty	ted.ramen
 
-// Reset Csory expansion control
-// -- commented out because most probably VICE Csory emulation is wrong - inverted default value!
-//	sty	ramexpctrl_csory
-// Reset detection address contents
+// Save and Reset detection address contents
 	lda	testaddr
 	pha
 	sty	testaddr
@@ -25,62 +27,27 @@ detect_memsize:
 	lda	testaddr & $3fff
 	pha
 	sty	testaddr & $3fff
-// Reset address contents in all memory banks				
-	ldx	#%11000000
-	stx	ramexpctrl_hannes
-	sty	testaddr
-	ldx	#%11100000 // this one turns on Csory expansion!
-	stx	ramexpctrl_hannes
-	sty	testaddr
-	ldx	#%11110000
-	stx	ramexpctrl_hannes
-	sty	testaddr
-	ldx	#%11111000
-	stx	ramexpctrl_hannes
-	sty	testaddr
-	ldx	#%11111100
-	stx	ramexpctrl_hannes
-	sty	testaddr
-	ldx	#%11111110
-	stx	ramexpctrl_hannes
-	sty	testaddr
-	ldx	#%11111111
-	stx	ramexpctrl_hannes
-	sty	testaddr
-	
+
 // Set test byte at 64k RAM end
 	lda	#$55
 	sta	testaddr
-// Detect 16k				
+// Detect 16k
 	cmp	testaddr & $3fff
 	beq	!+
 	iny
-// Detect 32k				
+// Detect 32k
 	cmp	testaddr & $7fff
 	beq	!+
-// We have at least 64k				
+// We have at least 64k	
 	iny
+!:	sty	io_ramsize
+	cpy	#2
+	bne	!+
 	jsr	io_detmem_hannes
-!:	ldx	#%11111111
-	stx	ramexpctrl_hannes
-	inx
-// -- commented out because most probably VICE Csory emulation is wrong - inverted default value!
-//	stx	ramexpctrl_csory
-	tya
-	cpy	#3
-	bcc	!+
-	ora	#%10000000 // Signal Hannes expansion
-!:	sta	io_ramsize
 	jsr	io_detmem_csory
-	sty	io_detmemtemp
-	lda	io_ramsize
-	and	#%00111111
-	cmp	io_detmemtemp
-	bcs	!+
-	lda	io_detmemtemp
-	ora	#%01000000
-	sta	io_ramsize
-!:	pla
+!:	jsr	io_detmem_neoram
+// Restore detection address contents
+	pla
 	sta	testaddr & $3fff
 	pla
 	sta	testaddr & $7fff
@@ -99,7 +66,7 @@ detect_memsize:
 	sta	ted.romen
 	pha
 	cli
-	and	#%00111111
+	and	#%00011111
 	asl
 	tay
 	ldx	io_ramsizes,y
@@ -108,27 +75,27 @@ detect_memsize:
 	lda	#'k'
 	jsr	chrout
 	pla
+	pha
 	bpl	!+
 	jsr	primm
-	.text	" (Hannes)"
+	.text	" Hannes"
 	.byte	0
-//	bit	io_ramsize
-//	bvc	+++
-//	lda	#"+"
-//	jsr	chrout
-//+	bit	io_ramsize
-	//bvc	+
-//	jsr	primm
-//	.null	"Csory"
-//	jmp	++
-//+	jsr	primm
-//	.null	"stock"
-!:
-//	lda	#")"
-//	jsr	chrout
-	jsr	prtcr
-	#endif
+!:	pla
+	pha
+	and	#%01000000
+	beq	!+
+	jsr	primm
+	.text	" Csory"
+	.byte	0
+!:	pla
+	and	#%00100000
+	beq	!+
+	jsr	primm
+	.text	" NeoRAM"
+	.byte	0
+!:	jsr	prtcr
 	rts
+	#endif
 	
 // Detect Hannes expansion
 // -----------------------
@@ -139,6 +106,38 @@ detect_memsize:
 // Attention! Address bits are inverted (control register defaults to $ff)  
  
 io_detmem_hannes:
+{
+	lda	#0
+// Reset address contents in all Hannes memory banks
+// 4M
+	ldx	#%11000000
+	stx	ramexpctrl_hannes
+	sta	testaddr
+// 2M
+	ldx	#%11100000 // this one turns on Csory expansion!
+	stx	ramexpctrl_hannes
+	sta	testaddr
+// 1M
+	ldx	#%11110000
+	stx	ramexpctrl_hannes
+	sta	testaddr
+// 512k
+	ldx	#%11111000
+	stx	ramexpctrl_hannes
+	sta	testaddr
+// 256k
+	ldx	#%11111100
+	stx	ramexpctrl_hannes
+	sta	testaddr
+// 128k
+	ldx	#%11111110
+	stx	ramexpctrl_hannes
+	sta	testaddr
+// 64k
+	ldx	#%11111111
+	stx	ramexpctrl_hannes
+	sta	testaddr
+
 // Set test byte in highest bank
 	ldx	#%11000000
 	stx	ramexpctrl_hannes
@@ -155,15 +154,28 @@ io_detmem_hannes:
 	iny
 	dex
 	bne	!-
+!:	ldx	#%11111111
+	stx	ramexpctrl_hannes
+	cpy	#3
+	bcc	!+
+	tya
+	ora	#%10000000
+	sta	io_ramsize
 !:	rts	
+}
 
 // Detect Csory expansion
 // -----------------------
 // Method: 
 // 1) 
-io_detmem_csory:
-	ldy	#0
+io_detmem_csory: {
 	rts
+}
+
+io_detmem_neoram: {
+	rts
+}
+
 io_detmemtemp:
 	.byte	0
 	#if	prtstatus
