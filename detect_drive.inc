@@ -22,15 +22,17 @@ io_det_drive:
 	sta	io_drivesernum
 	#if	prtstatus
 	jsr	primm
-	.text	" Using drive #"
-	.byte	0
-	jsr	io_prtdrivenum
-	jsr	primm
-	.byte	13
 	.text	" Detected devices:"
 	.byte	13, 0
 	#endif
 	jsr	io_detectdrvtp	
+	#if	prtstatus
+	jsr	primm
+	.text	" Using drive #"
+	.byte	0
+	jsr	io_prtdrivenum
+	jsr	prtcr
+	#endif
 	rts
 	
 io_detectdrvtp:
