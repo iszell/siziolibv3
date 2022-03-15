@@ -169,6 +169,60 @@ io_detmem_hannes:
 // Method: 
 // 1) 
 io_detmem_csory: {
+	// Set Csory expansion to default config: $c000-$ffff= 16k bank 3
+	ldx	#%11000011
+	stx	ramexpctrl_csory
+	// Turn on Csory expansion on Hannes
+	lda	#%11011111
+	sta	ramexpctrl_hannes
+
+	ldx	#%11000011
+	stx	ramexpctrl_csory
+	lda	#$55
+	sta	testaddr
+
+	ldx	#%11001111
+	stx	ramexpctrl_csory
+	sta	testaddr
+
+	ldx	#%11111111
+	stx	ramexpctrl_csory
+	sta	testaddr
+
+	ldx	#%11000011
+	stx	ramexpctrl_csory
+	lda	#$aa
+	sta	testaddr
+
+	ldy	#2
+	ldx	#%11001111
+	stx	ramexpctrl_csory
+	cmp	testaddr
+	beq	!+
+	iny
+
+	ldx	#%11111111
+	stx	ramexpctrl_csory
+	cmp	testaddr
+	beq	!+
+	iny
+
+!:	sty	io_detmemtemp
+	cpy	#3
+	bcc	!+
+	lda	#%01000000
+	ora	io_ramsize
+	sta	io_ramsize
+	and	#%00111111
+	cmp	io_detmemtemp
+	bcs	!+
+	lda	io_ramsize
+	and	#%11000000
+	ora	io_detmemtemp
+	sta	io_ramsize
+	// Turn off Csory and reset Hannes expansion
+!:	lda	#%11111111
+	sta	ramexpctrl_hannes
 	rts
 }
 
