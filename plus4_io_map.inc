@@ -75,7 +75,7 @@
 //     5-4: unused (avaliable for 1M RAM expansion) 
 //     3-0: 16k memory bank select to display in main memory window (16x16k = 256k)
 // See also Hannes control register bit 6 
-// Default value: $00
+// Default value: $ff
 .label	ramexpctrl_csory	= $fd15
 // Hannes RAM expansion control
 // Bit   7: expansion memory switch bound: 0:$1000, 1:$4000

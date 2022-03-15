@@ -10,10 +10,6 @@
 	bne	!+
 	rts
 !:	jsr	iolib.init
-	jsr	primm
-	.byte	13
-	.text	"Loading..."
-	.byte	13, 0
 
 	sei
 	sta	ted.ramen
