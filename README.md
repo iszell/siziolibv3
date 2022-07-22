@@ -59,6 +59,7 @@ Based on TED control register #2 ($ff07) bit 6.
 ## 2.5 Sound source detection
 Detects if a SID card is plugged in, the SID chip type (6581/8580) and if the
 card is an NST Audio Extension (BSz SID Card).
+Also detects the presens of AY extension (DIGIMUZ) and tries to detect FM emulation of SideKick.
 
 ## 2.6 Loader
 Detects devices connected to the computer from #4 to #31.
@@ -118,6 +119,7 @@ After that you only have to do the following in your parts:
 - include `iolib_def.inc`
 - call `iolib.load` or `iolib.decrunch` with first character of file name in XR and second
   one in YR
+- quit loader: set both X and Y to 0 and call `iolib.load`. It will report a load error and quits drive side code. *NOTE* This does not work with SD2IEC G.I. Joe loader (stock SD2IEC firmware).
 
 For variables set by detection check the contents of iolib_def.inc.
 

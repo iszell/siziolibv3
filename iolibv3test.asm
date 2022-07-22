@@ -37,9 +37,12 @@
 	ldx	#'t'
 	ldy	#'e'
 	jsr	iolib.load
+	php
+	ldx #0
+	ldy #0
+	jsr iolib.load
 	lda	#%00000010
 	sta	ted.irqmask
-	php
 	lda	$efff
 	sta	ted.romen
 	tax

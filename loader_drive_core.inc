@@ -5,7 +5,13 @@ mainloop:
 	jsr readfnam
 	lda blk4trk
 	sta temp1
-	lda blk4sec
+	ora blk4sec
+	bne !+
+	lda #RTS
+	sta senderrorend
+	jsr senderror
+	jmp ($fffc)
+!:	lda blk4sec
 	sta temp2
 	ldy #dirsect
 dirloop:
@@ -47,6 +53,7 @@ senderror:
 	jsr writebyte
 	ldx #$f7
 	jsr writebyte
+senderrorend:
 	jmp mainloop
 doload:	lda blk4buf+1,y
 	sta blk4trk
@@ -89,7 +96,8 @@ doload2:
 	sta serialdata
 	}
 	jmp doload1
-eof:	ldx #$ac
+eof:
+	ldx #$ac
 	jsr writebyte
 	ldx #$ff
 	jsr writebyte

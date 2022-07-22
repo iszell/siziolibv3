@@ -35,6 +35,11 @@
 	ldx	#'e'
 	ldy	#'x'
 	jsr	iolib.decrunch
+//	php
+//	ldx #0
+//	ldy #0
+//	jsr iolib.load
+//	plp
 	sta	ted.romen
 	bcs	error
 	jsr	primm
