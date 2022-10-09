@@ -87,7 +87,6 @@
 //     3-2: unused
 //          address bits 19-18 for 1M Hannes RAM expansion 
 //     1-0: 64k memory bank select 
-// Caution! Bits 1&0 are inverted!
 // Default value: $ff
 .label	ramexpctrl_hannes	= $fd16
 // Hannes/Solder ROM expansion control
