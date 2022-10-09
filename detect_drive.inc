@@ -38,21 +38,27 @@ io_det_drive:
 io_detectdrvtp:
 	lda	currdrive
 	pha
+// Start drive detection from unit number #4
 	ldx	#4
 io_detnextdrvtp:
 	stx	currdrive
 	jsr	io_detcurrdrv
 	cpy	#0
 	bne	!+
-	jsr	detvcpu
+// Detection by ROM read failed. Try FlexSD
+	jsr	detflexsd
 	bcc	!+
+// FlexSD firmware not present. Try status read
 	jsr	io_detbysts
+// Detect interface for drive
 !:	jsr	io_detdrvif
 	#if	prtstatus
+// Print detected drive and interface type
 	lda	io_drivetyp
 	cmp	#$ff
-	beq	io_detdrvnotpresent
-	jsr	primm
+	bne !+
+	jmp	io_detdrvnotpresent
+!:	jsr	primm
 	.text	"  #"
 	.byte	0
 	jsr	io_prtdrivenum
@@ -86,8 +92,39 @@ io_detnextdrvtp:
 	inx
 	dey
 	bne	!-
+// Print init message for unknown drive type
+{
+	lda io_drivetyp
+	bne !+++
+#if	HAS_TED
+	lda mraddr+1
+	jsr hexbout
+	lda mraddr
+	jsr hexbout
+	lda #':'
+	jsr chrout
+	lda mrdta
+	jsr hexbout
+#endif
 	jsr	prtcr
+	ldx	#'u'
+	ldy	#'i'
+	jsr readstatus
+	ldx #6
+!:	jsr prtspc
+	dex
+	bpl	!-
+	ldx #3
+!:	lda statustxt,x
+	cmp #','
+	beq !+
+	jsr chrout
+	inx
+	bne !-
+!:	jsr prtcr
+}
 	#endif	
+// Device number not responding. Try next one
 io_detdrvnotpresent:
 	pla
 	pha
@@ -109,7 +146,9 @@ io_detdrvnotpresent:
 !:	ldx	currdrive
 	inx
 	cpx	#lastdrive+1
-	bne	io_detnextdrvtp
+	beq !+
+	jmp	io_detnextdrvtp
+!:
 	#if	prtstatus
 	jsr	primm
 	.text	" Devices connected to serial bus: "
@@ -221,7 +260,7 @@ readmem:
 	ldx	xtmp
 	rts
 
-detvcpu:
+detflexsd:
 {
 	ldx	#'z'
 	ldy	#'i'
@@ -499,7 +538,8 @@ io_drivenames:
 	.text	"1581            " //  8
 	.text	"RF-501C         " //  9
 	.text	"SD2IEC          " // 10
-	.text	"SD2IEC/VCPU     " // 11
+	.text	"SD2IEC/FlexSD   " // 11
+	.text	"FD-2000         " // 12
 io_ifnames:
 		//0123456789abcdef
 	.text	"unsupported     " // 0
@@ -519,6 +559,7 @@ io_ifnames:
 //    other: drive type id
 	
 io_drvaddr:
+	.byte	$00,$c0,$4d,12 //FD-2000
 	.byte	$00,$c0,$c0,8  //1581
 	.byte	$00,$c0,$4a,8  //1581 (1563)
 	.byte	$00,$c0,$2b,8  //1581 (beta)
@@ -570,7 +611,8 @@ iftable:
 	.byte 8,1 //1581,serial
 	.byte 9,1 //RF501C,serial
 	.byte 10,1//SD2IEC,serial
-	.byte 11,1//SD2IEC/VCPU,serial
+	.byte 11,1//SD2IEC/FlexSD,serial
+	.byte 12,1//FD-2000,serial
 iftblend:
 
 io_drivetyp:
