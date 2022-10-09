@@ -17,7 +17,9 @@
 	bne	!+
 	rts
 !:	jsr	iolib.init
-
+	bcc !+
+	rts
+!:
 	lda	#0
 !:	sta	pio_keyboard
 	sta	ted.keyblatch

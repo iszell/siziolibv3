@@ -215,6 +215,11 @@ wrtnxt:	ldx	#15
 	clc
 	.byte	$24
 io_noloader:
+	#if	prtstatus
+	jsr	primm
+	.text	"Error: no loader for drive!" 
+	.byte	13, 0
+	#endif
 	sec
 	rts
 	
@@ -264,8 +269,8 @@ io_loadertab:
 	.byte	2, 4 // 8 1581
 	.byte	2, 2 // 9 RF-501C
 	.byte	2, 7 // a SD2IEC
-	.byte	2, 7 // b SD2IEC/VCPU
-	.byte	0, 0 // c
+	.byte	2, 7 // b SD2IEC/FlexSD
+	.byte   0, 0 // c FD-2000
 	.byte	0, 0 // d
 	.byte	0, 0 // e
 	.byte	0, 0 // f
@@ -297,8 +302,8 @@ io_loadertab:
 	.byte	2, 4 // 8 1581
 	.byte	2, 2 // 9 RF-501C
 	.byte	2, 7 // a SD2IEC
-	.byte	2, 7 // b SD2IEC/VCPU
-	.byte	0, 0 // c
+	.byte	2, 7 // b SD2IEC/FlexSD
+	.byte	0, 0 // c FD-2000
 	.byte	0, 0 // d
 	.byte	0, 0 // e
 	.byte	0, 0 // f
@@ -314,7 +319,7 @@ io_loadertab:
 	.byte	0, 0 // 8 1581
 	.byte	0, 0 // 9 RF-501C
 	.byte	0, 0 // a SD2IEC
-	.byte	0, 0 // b
+	.byte	0, 0 // b 
 	.byte	0, 0 // c
 	.byte	0, 0 // d
 	.byte	0, 0 // e
@@ -331,8 +336,8 @@ io_loadertab:
 	.byte	0, 0 // 8 1581
 	.byte	0, 0 // 9 RF-501C
 	.byte	0, 0 // a SD2IEC
-	.byte	0, 0 // b
-	.byte	0, 0 // c
+	.byte	0, 0 // b SD2IEC/FlexSD
+	.byte	0, 0 // c FD-2000
 	.byte	0, 0 // d
 	.byte	0, 0 // e
 	.byte	0, 0 // f
