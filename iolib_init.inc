@@ -213,7 +213,7 @@ wrtnxt:	ldx	#15
 	.byte	13, 0
 	#endif
 	clc
-	.byte	$24
+	rts
 io_noloader:
 	#if	prtstatus
 	jsr	primm
