@@ -8,9 +8,9 @@ del *.tmp
 call bin\ka -bytedumpfile iolibv3test.lst iolibv3test.asm
 call bin\ka -bytedumpfile iolibv3exotest.lst iolibv3exotest.asm
 call bin\ka -bytedumpfile demo.lst demo.asm
-call bin\ka -bytedumpfile init.lst -define prtstatus -o init.tmp init.asm
-exomizer\3.1.1\exomizer sfx basic -t 4 -n -s "lda $ae pha" -f "pla sta $ae" -o init.prg init.tmp
-call bin\ka -bytedumpfile initquiet.lst -o init.tmp init.asm
+call bin\ka -bytedumpfile      init.lst -define prtstatus -o init.tmp init.asm
+exomizer\3.1.1\exomizer sfx basic -t 4 -n -s "lda $ae pha" -f "pla sta $ae" -o      init.prg init.tmp
+call bin\ka -bytedumpfile initquiet.lst                   -o init.tmp init.asm
 exomizer\3.1.1\exomizer sfx basic -t 4 -n -s "lda $ae pha" -f "pla sta $ae" -o initquiet.prg init.tmp
 call bin\ka -bytedumpfile hwdetectplus4.lst hwdetectplus4.asm
 call bin\ka -bytedumpfile hwdetect64.lst hwdetect64.asm
