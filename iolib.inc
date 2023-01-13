@@ -38,6 +38,8 @@ detect:
 	.text	"Detecting hardware configuration..."
 	.byte	13, 0
 	#endif
+	
+	jsr detect_vice
 
 	#if	need_video_detect
 	jsr	detect_video
@@ -90,6 +92,25 @@ prtspc:	lda	#' '
 prtcr:	lda	#13
 	jmp	chrout
 	#endif
+
+detect_vice:
+{
+#if	HAS_TED
+	lda $fdd0
+	ldx #0
+!:  cmp $fdd0
+	bne endvice
+	dex
+	bne !-
+
+	jsr primm
+	.byte 130
+	.text " Please don't use VICE xplus4!"
+	.byte 132, 13, 0
+endvice:
+#endif
+	rts
+}
 
 #if	need_memory_detect
 	#import	"detect_memory.inc"
