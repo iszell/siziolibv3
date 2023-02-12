@@ -196,7 +196,7 @@ io_detsidaddr:
 	bne !+
 	rts
 // Either PotX or PotY is not $ff - no SID or paddle is not fully left - try alternative detection
-// Reset SID
+// Reset SID (again)
 !:	ldy #24
 	lda #0
 !:	sta (sidptr),y
