@@ -3,7 +3,7 @@
 	.namespace plus4serial1bit {
 	.pseudopc io_base {
 
-.label bitbuff	= $b7
+.label bitbuff	= iolib.io_bitbuff
 //C64 (serial bus output is inverted!)
 // default value %10010111 (at least with JiffyDOS)
 //  Bit  Dir. Expl.

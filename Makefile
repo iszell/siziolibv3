@@ -7,7 +7,7 @@ KICKASS			= java -jar $(KICKASSPATH)/KickAss.jar
 SRCS = $(wildcard *.asm)
 PRGS = $(SRCS:.asm=.prg)
 
-all: testdisk.d64 testdisk.d71 testdisk.d81 init.prg initquiet.prg
+all: testdisk.d64 testdisk.d71 testdisk.d81 init.prg initquiet.prg stripped.prg
 
 clean:
 	$(RM) *.prg *.lst *.d?? *.tmp *.sym

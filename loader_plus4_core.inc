@@ -3,7 +3,7 @@
 	#import	"iolib_def.inc"
 
 .macro	plus4load(readbyte, writebyte, sync, hardsync) {
-.label	ptr	= $9e
+.label	ptr	= iolib.io_loadptr
 	lda #2
 	jsr sendfnam
 	jsr readbyte
