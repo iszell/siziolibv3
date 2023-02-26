@@ -4,12 +4,21 @@
 
 .macro	plus4load(readbyte, writebyte, sync, hardsync) {
 .label	ptr	= iolib.io_loadptr
-	lda #2
 	jsr sendfnam
 	jsr readbyte
+#if need_loadflag
+	bit iolib.io_loadflag
+	bmi !+
+#endif
 	sta ptr
+!:
 	jsr readbyte
+#if need_loadflag
+	bit iolib.io_loadflag
+	bmi !+
+#endif
 	sta ptr+1
+!:
 	cmp #$fe
 	bne !+
 	jsr readbyte
@@ -32,21 +41,20 @@ loadloop:
 storebyte:
 	sta (ptr),Y
 	iny
-	bne !+
+	bne loadloop
 	inc ptr+1
-!:	jmp loadloop
-eof:	clc
+	bne loadloop
+eof:
+	clc
 loaderror:
 	ldx filename
 	ldy filename+1
-	lda #0
 	rts
 sendfnam:
-	pha
 	stx filename
 	sty filename+1
 	jsr hardsync
-	pla
+	lda #2
 	jsr writebyte
 	lda filename
 	jsr writebyte
