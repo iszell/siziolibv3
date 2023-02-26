@@ -5,12 +5,12 @@
 	jsr	iolib.detect
 	lda	iolib.drivedetect.io_drivetyp
 	bne	!+
-	beq quit
-!:	jsr	iolib.init
-	bcc !+
 quit:
 	jmp $fff6
-!:  jmp $5555
+!:	sei
+	jsr	iolib.init
+	bcs  quit
+	jmp $5555
 
 .namespace iolib {
 	.label	io_tcbmoffs	= $06ff
@@ -19,7 +19,7 @@ quit:
 	.label  io_loadptr  = $9e
 	.label  io_loadflag = $9d
 }
-#define prtstatus
+#undef prtstatus
 #define need_loader
 #define need_loadflag
 #define skip_default_definitions

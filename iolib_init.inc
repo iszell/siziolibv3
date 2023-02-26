@@ -49,42 +49,12 @@ initloader:
 	pla
 	pha
 	#endif
-	#if	prtstatus
-	jsr	primm
-	.text	" Computer loader: "
-	.byte	0
-	asl
-	asl
-	asl
-	asl
-	tay
-	ldx	#16
-!:	lda	io_cmploadernames,y
-	jsr	chrout
-	iny
-	dex
-	bne	!-
-	#endif
-	pla
-	asl
-	tax
-	lda	io_plus4loaders,x
-	sta	ptr
-	lda	io_plus4loaders+1,x
-	sta	ptr+1
-// Copy computer loader code
-	ldy	#0
-!:	lda	(ptr),y
-	sta	io_base,y
-	iny
-	bne	!-
 	ldx	xtmp
 	inx
 	lda	io_loadertab,x
 	#if	prtstatus
 	pha
 	jsr	primm
-	.byte	13
 	.text	" Drive loader: "
 	.byte	0
 	asl
@@ -202,13 +172,52 @@ wrtnxt:	ldx	#15
 	jsr	clrchans
 	lda	#15
 	jsr	close
-	sei
-	sta	ted.ramen
-	jsr	io_initloader
-	sta	ted.romen
-	cli
 	#if	prtstatus
 	jsr	primm
+	.text	" Computer loader: "
+	.byte	0
+	pla
+	pha
+	asl
+	asl
+	asl
+	asl
+	tay
+	ldx	#16
+!:	lda	io_cmploadernames,y
+	jsr	chrout
+	iny
+	dex
+	bne	!-
+	#endif
+.if (io_base < $0800) {
+	sei
+}
+	pla
+	asl
+	tax
+	lda	io_plus4loaders,x
+	sta	ptr
+	lda	io_plus4loaders+1,x
+	sta	ptr+1
+// Copy computer loader code
+	ldy	#0
+!:	lda	(ptr),y
+	sta	io_base,y
+	iny
+	bne	!-
+.if (io_base > $8000) {
+	sei
+	sta	ted.ramen
+}
+	jsr	io_initloader
+.if (io_base > $8000) {
+	sta	ted.romen
+	cli
+}
+	#if	prtstatus
+	jsr	primm
+	.byte	13
 	.text	"Initialization complete" 
 	.byte	13, 0
 	#endif

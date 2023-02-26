@@ -136,12 +136,16 @@ io_detdrvnotpresent:
 	lda	io_driveiftyp
 	pha
 #if	HAS_TED
+.if (iobase > $8000) {
 	sei
 	sta	ted.ramen
+}
 	lda	io_tcbmoffs
 	pha
+.if (iobase > $8000) {
 	sta	ted.romen
 	cli
+}
 #endif
 !:	ldx	currdrive
 	inx
