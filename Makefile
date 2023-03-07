@@ -1,8 +1,9 @@
-CC1541			= bin/cc1541
+CC1541			= cc1541
 EXOMIZER		= exomizer
 EXOMIZERSFXOPTS	= sfx basic -t 4 -n -s "lda 174 pha" -f "pla sta 174"
 EXOMIZERMEMOPTS	= mem -f
-KICKASS			= java -jar $(KICKASSPATH)/KickAss.jar 
+KICKASS			= java -jar $(KICKASSPATH)/KickAss.jar
+KICKASSOPTS		= -showmem -symbolfile
 
 SRCS = $(wildcard *.asm)
 PRGS = $(SRCS:.asm=.prg)
@@ -13,29 +14,41 @@ clean:
 	$(RM) *.prg *.lst *.d?? *.tmp *.sym
 
 %.prg: %.asm *.inc
-	$(KICKASS) -o $@.tmp $<
-	$(EXOMIZER) $(EXOMIZERSFXOPTS) -o $@ $@.tmp
-
-hwdetect64.prg: hwdetect64.asm *.inc
-	$(KICKASS) -define prtstatus -o $@.tmp hwdetect64.asm
-	$(EXOMIZER) sfx basic -t 64 -n -o $@ $@.tmp
-
-init.prg: init.asm *.inc
-	$(KICKASS) -define prtstatus -o $@.tmp init.asm
-	$(EXOMIZER) $(EXOMIZERSFXOPTS) -o $@ $@.tmp
-
-initquiet.prg: init.asm *.inc
-	$(KICKASS) -o $@.tmp init.asm
+	$(KICKASS) $(KICKASSOPTS) -o $@.tmp $<
 	$(EXOMIZER) $(EXOMIZERSFXOPTS) -o $@ $@.tmp
 
 bitmapexodata.prg: bitmap1.bin
 	$(EXOMIZER) $(EXOMIZERMEMOPTS) -o $@ $<
 
+demo.prg: demo.asm *.inc
+	$(KICKASS) $(KICKASSOPTS) -o $@ demo.asm
+
+hwdetect64.prg: hwdetect64.asm *.inc
+	$(KICKASS) $(KICKASSOPTS) -define prtstatus -o $@.tmp hwdetect64.asm
+	$(EXOMIZER) sfx basic -t 64 -n -o $@ $@.tmp
+
+init.prg: init.asm *.inc
+	$(KICKASS) $(KICKASSOPTS) -define prtstatus -o $@.tmp init.asm
+	$(EXOMIZER) $(EXOMIZERSFXOPTS) -o $@ $@.tmp
+
+initquiet.prg: init.asm *.inc
+	$(KICKASS) $(KICKASSOPTS) -o $@.tmp init.asm
+	$(EXOMIZER) $(EXOMIZERSFXOPTS) -o $@ $@.tmp
+
 exotestdata.prg: dotctitle.bin
 	$(EXOMIZER) $(EXOMIZERMEMOPTS) -o $@ $<
 
+stripped.prg: stripped.asm
+	$(KICKASS) $(KICKASSOPTS) -o $@ stripped.asm
+
+strippedtest.prg: strippedtest.asm stripped.asm
+	$(KICKASS) $(KICKASSOPTS) -o $@ strippedtest.asm
+
+testfile.prg: testfile.asm
+	$(KICKASS) $(KICKASSOPTS) -o $@ testfile.asm
+
 testdata.prg: testdata.asm
-	$(KICKASS) -o $@ init.asm
+	$(KICKASS) $(KICKASSOPTS) -o $@ testdata.asm
 
 testdisk.d64 testdisk.d71 testdisk.d81: $(PRGS) exotestdata.prg bitmapexodata.prg
 	$(CC1541) \
@@ -50,4 +63,5 @@ testdisk.d64 testdisk.d71 testdisk.d81: $(PRGS) exotestdata.prg bitmapexodata.pr
 		-f "hwdetect plus/4" -w hwdetectplus4.prg \
 		-f "hwdetect 64" -w hwdetect64.prg \
 		-f "stripped loader" -w strippedtest.prg \
+		-f b2 -w testfile.prg \
 		$@
