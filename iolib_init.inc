@@ -411,12 +411,11 @@ io_drvtcbm:
 io_drvgijoe:
 	#import	"loader_drive_gijoe.inc"
 io_loaderend:
+#endif
 #if need_exodecrunch
 io_decrunchdata:
 	#import	"decrunch.inc"
 .label io_decrunchdatasize=*-io_decrunchdata
-#endif
-
 #endif
 }
 }
