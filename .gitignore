@@ -1,4 +1,5 @@
 ByteDump.txt
+!init*.prg
 *.prg
 *.d64
 *.d71
