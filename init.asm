@@ -6,10 +6,10 @@
 	.encoding	"petscii_mixed"
 	
 	jsr	iolib.detect
-	bcc !+
 	lda	iolib.drivedetect.io_drivetyp
-	bne	!++
-!:	jsr primm
+	cmp #$ff
+	bne	!+
+	jsr primm
 	.byte 13
 	.text "no supported drive found. exiting."
 	.byte 13, 0

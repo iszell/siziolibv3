@@ -226,6 +226,7 @@ wrtnxt:	ldx	#15
 io_noloader:
 	#if	prtstatus
 	jsr	primm
+	.byte	13
 	.text	"Error: no loader for drive!" 
 	.byte	13, 0
 	#endif
