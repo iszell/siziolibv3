@@ -63,5 +63,4 @@ testdisk.d64 testdisk.d71 testdisk.d81: $(PRGS) exotestdata.prg bitmapexodata.pr
 		-f "hwdetect plus/4" -w hwdetectplus4.prg \
 		-f "hwdetect 64" -w hwdetect64.prg \
 		-f "stripped loader" -w strippedtest.prg \
-		-f b2 -w testfile.prg \
 		$@
