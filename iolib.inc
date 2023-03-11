@@ -39,7 +39,9 @@ detect:
 	.byte	13, 0
 	#endif
 	
+	#if !bypass_vice
 	jsr detect_vice
+	#endif
 
 	#if	need_video_detect
 	jsr	detect_video
@@ -105,8 +107,11 @@ detect_vice:
 
 	jsr primm
 	.byte 130
-	.text " Please don't use VICE xplus4!"
+	.text "Please don't use VICE xplus4!"
 	.byte 132, 13, 0
+	
+	pla
+	pla
 endvice:
 #endif
 	rts
