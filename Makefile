@@ -14,8 +14,8 @@ clean:
 	$(RM) *.prg *.lst *.d?? *.tmp *.sym
 
 %.prg: %.asm *.inc
-	$(KICKASS) $(KICKASSOPTS) -o $@.tmp $<
-	$(EXOMIZER) $(EXOMIZERSFXOPTS) -o $@ $@.tmp
+	$(KICKASS) $(KICKASSOPTS) -o $(basename $@).tmp $<
+	$(EXOMIZER) $(EXOMIZERSFXOPTS) -o $@ $(basename $@).tmp
 
 bitmapexodata.prg: bitmap1.bin
 	$(EXOMIZER) $(EXOMIZERMEMOPTS) -o $@ $<
@@ -24,16 +24,16 @@ demo.prg: demo.asm *.inc
 	$(KICKASS) $(KICKASSOPTS) -o $@ demo.asm
 
 hwdetect64.prg: hwdetect64.asm *.inc
-	$(KICKASS) $(KICKASSOPTS) -define prtstatus -o $@.tmp hwdetect64.asm
-	$(EXOMIZER) sfx basic -t 64 -n -o $@ $@.tmp
+	$(KICKASS) $(KICKASSOPTS) -define prtstatus -o hwdetect64.tmp hwdetect64.asm
+	$(EXOMIZER) sfx basic -t 64 -n -o $@ hwdetect64.tmp
 
 init.prg: init.asm *.inc
-	$(KICKASS) $(KICKASSOPTS) -define prtstatus -o $@.tmp init.asm
-	$(EXOMIZER) $(EXOMIZERSFXOPTS) -o $@ $@.tmp
+	$(KICKASS) $(KICKASSOPTS) -define prtstatus -o init.tmp init.asm
+	$(EXOMIZER) $(EXOMIZERSFXOPTS) -o $@ init.tmp
 
 initquiet.prg: init.asm *.inc
-	$(KICKASS) $(KICKASSOPTS) -o $@.tmp init.asm
-	$(EXOMIZER) $(EXOMIZERSFXOPTS) -o $@ $@.tmp
+	$(KICKASS) $(KICKASSOPTS) -o initquiet.tmp init.asm
+	$(EXOMIZER) $(EXOMIZERSFXOPTS) -o $@ initquiet.tmp
 
 exotestdata.prg: dotctitle.bin
 	$(EXOMIZER) $(EXOMIZERMEMOPTS) -o $@ $<
