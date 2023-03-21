@@ -3,7 +3,7 @@ EXOMIZER		= exomizer
 EXOMIZERSFXOPTS	= sfx basic -t 4 -n -s "lda 174 pha" -f "pla sta 174"
 EXOMIZERMEMOPTS	= mem -f
 KICKASS			= java -jar $(KICKASSPATH)/KickAss.jar
-KICKASSOPTS		= -showmem -symbolfile
+KICKASSOPTS		+= -showmem -symbolfile
 
 SRCS = $(wildcard *.asm)
 PRGS = $(SRCS:.asm=.prg)
@@ -38,10 +38,10 @@ initquiet.prg: init.asm *.inc
 exotestdata.prg: dotctitle.bin
 	$(EXOMIZER) $(EXOMIZERMEMOPTS) -o $@ $<
 
-stripped.prg: stripped.asm
+stripped.prg: stripped.asm *.inc
 	$(KICKASS) $(KICKASSOPTS) -o $@ stripped.asm
 
-strippedtest.prg: strippedtest.asm stripped.asm
+strippedtest.prg: strippedtest.asm stripped.asm *.inc
 	$(KICKASS) $(KICKASSOPTS) -o $@ strippedtest.asm
 
 testfile.prg: testfile.asm
@@ -51,6 +51,7 @@ testdata.prg: testdata.asm
 	$(KICKASS) $(KICKASSOPTS) -o $@ testdata.asm
 
 testdisk.d64 testdisk.d71 testdisk.d81: $(PRGS) exotestdata.prg bitmapexodata.prg
+	$(RM) $@
 	$(CC1541) \
 		-n "iolibv3test" \
 		-f demo -w demo.prg \
