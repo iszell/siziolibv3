@@ -39,9 +39,9 @@ detect:
 	.byte	13, 0
 	#endif
 	
-	#if !bypass_vice
+#if !bypass_vice
 	jsr detect_vice
-	#endif
+#endif
 
 	#if	need_video_detect
 	jsr	detect_video
@@ -95,6 +95,7 @@ prtcr:	lda	#13
 	jmp	chrout
 	#endif
 
+#if !bypass_vice
 detect_vice:
 {
 #if	HAS_TED
@@ -116,6 +117,7 @@ endvice:
 #endif
 	rts
 }
+#endif
 
 #if	need_memory_detect
 	#import	"detect_memory.inc"
