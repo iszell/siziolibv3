@@ -95,9 +95,8 @@ hardsync:
 sync:	ldx #100
 !:	dex
 	bne !-
-!:	lda serialport
-	and #%01000000 //01000000 check clock
-	beq !-
+!:	bit serialport
+	bvc !-			//01000000 check clock
 	lda #%00001000 //11000111 clock lo, data lo
 	sta serialport
 	ldx #10
