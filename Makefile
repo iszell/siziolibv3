@@ -1,9 +1,9 @@
 CC1541			= cc1541
 EXOMIZER		= exomizer
 EXOMIZERSFXOPTS	= sfx basic -t 4 -n -s "lda 174 pha" -f "pla sta 174"
-EXOMIZERMEMOPTS	= mem -f
+EXOMIZERMEMOPTS	= mem -f -c
 KICKASS			= java -jar $(KICKASSPATH)/KickAss.jar
-KICKASSOPTS		+= -showmem -symbolfile
+KICKASSOPTS		+= -showmem -symbolfile -bytedumpfile $(basename $@).lst
 
 SRCS = $(wildcard *.asm)
 PRGS = $(SRCS:.asm=.prg)
