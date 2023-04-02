@@ -104,15 +104,15 @@
 // -------------------------------------------------------------------
 // zero page addresses used
 // -------------------------------------------------------------------
-.label	zp_len_lo = $9e
-.label	zp_len_hi = $9f
+.label	zp_len_lo = $a7
+.label	zp_len_hi = $a8
 
 .label	zp_src_lo  = $ae
 .label	zp_src_hi  = zp_src_lo + 1
 
-.label	zp_bits_hi = $a7
+.label	zp_bits_hi = $fc
 #if !DONT_REUSE_OFFSET
-.label	zp_ro_state = $a8
+.label	zp_ro_state = $a9
 #endif
 
 .label	zp_bitbuf  = $fd
