@@ -45,9 +45,9 @@
 	// bit 5
 	//  SideKick NeoRAM present
 	// bit 6
-	//  Hannes expansion present
+	//  Csory expansion present
 	// bit 7
-	// Csory expansion present
+	//  Hannes expansion present
 	.label	io_ramsize	= io_data
 
 	// Type of sound source detected 
