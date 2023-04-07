@@ -40,10 +40,23 @@ error:	lda	#$32
 }
 
 .namespace iolib {
+/*
+// Print IOLib status messages
+	#define prtstatus
+*/
+/*
+// Bypass VICE xplus4 detection and quitting when VICE is detected
+	#define bypass_vice
+*/
+// Detect video standard. Not really useful except for printing status message
 	#define need_video_detect
+// Detect memory size and expansion type
 	#define need_memory_detect
+// Detect available sound expansions including SID type and address
 	#define need_sound_detect
+// Include loader code (drive detection and loader)
 	#define need_loader
+// Include exomizer on-the-fly decruncher
 	#define need_exodecrunch
 }
 #import "iolib.inc"
