@@ -9,7 +9,7 @@ detect_drive:
 #else
 .label	currdrive	= $ba
 #endif
-.const	lastdrive	= 30
+.const	lastdrive	= 15
 io_det_drive:
 // default to drive 8 if last used # is less than that
 	lda	#8
@@ -110,6 +110,8 @@ io_detnextdrvtp:
 	ldx	#'u'
 	ldy	#'i'
 	jsr readstatus
+	lda statustxt
+	beq io_detdrvnotpresent
 	ldx #6
 !:	jsr prtspc
 	dex
@@ -277,7 +279,6 @@ detflexsd:
 	ldy	#11
 	sty	io_drivetyp
 	clc
-	.byte	$24
 !:	sec
 	rts
 }
@@ -378,13 +379,18 @@ readstatus:
 	lda	st
 	bne	enderr
 	beq	!-
-!:	clc
+!:	lda #2
+	bit st
+	bne enderr
+	clc
 	.byte $24  // bit $xx
 enderr:	sec
 	php
 	jsr	clrchans
 	lda	#15
 	jsr	close
+	lda #0
+	sta statustxt
 	plp
 	rts
 }
