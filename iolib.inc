@@ -21,6 +21,7 @@
 //	2017.05.10: dual 1551 fix
 //	2020.05.30: change copyright message
 //	2021.06.17: migrate sources to KickAss
+//	2024.01.27: C16STM support
 
 	#import "iolib_def.inc"
 
@@ -30,10 +31,24 @@
 	.encoding	"petscii_mixed"
 
 detect:
+// workaround for C16STM that destroys CPU port data
+	#if HAS_TED
+	lda ted.cursorlo
+	pha
+	lda	ted.cursorhi
+	pha
+	#endif
+	jsr ioinit
+	#if HAS_TED
+	pla
+	sta	ted.cursorhi
+	pla
+	sta ted.cursorlo
+	#endif
 	#if	prtstatus
 	jsr	primm
 	.byte	14
-	.text	"IOLibV3 by Siz of Absence (c) 2022"
+	.text	"IOLibV3 by Siz of Absence (c) 2024"
 	.byte	13
 	.text	"Detecting hardware configuration..."
 	.byte	13, 0

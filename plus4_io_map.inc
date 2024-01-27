@@ -129,3 +129,9 @@
 	.label	data	= address + 1
 	.label	status	= address + 2
 }
+
+// C16STM registers (http://joco.homeserver.hu/c16stm/)
+.namespace c16stm {
+	.label	data	= $fdf0
+	.label	status	= data + 1
+}

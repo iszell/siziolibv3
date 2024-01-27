@@ -1,6 +1,11 @@
 	.print	". drive detection"
 	.namespace iolib {
 
+//#define DEBUG
+//#define TEST_C16STM
+#undef HAS_BURST
+#undef HAS_IEEE
+
 detect_drive:
 .namespace drivedetect {
 .label	io_ptr		= 2
@@ -11,10 +16,20 @@ detect_drive:
 #endif
 .const	lastdrive	= 15
 io_det_drive:
+#if	HAS_TED
+#if DEBUG
+	lda ted.border
+	pha
+#endif
+#endif
+	lda #0
+	sta nodefaultdrive
+	sta c16stmdevice
 // default to drive 8 if last used # is less than that
 	lda	#8
 	cmp	currdrive
 	bcc	!+
+	inc nodefaultdrive
 	sta	currdrive
 !:	lda	#0
 	sta	io_drivetyp
@@ -33,6 +48,12 @@ io_det_drive:
 	jsr	io_prtdrivenum
 	jsr	prtcr
 	#endif
+#if	HAS_TED
+#if DEBUG
+	pla
+	sta ted.border
+#endif
+#endif
 	rts
 	
 io_detectdrvtp:
@@ -42,6 +63,12 @@ io_detectdrvtp:
 	ldx	#4
 io_detnextdrvtp:
 	stx	currdrive
+	#if prtstatus
+	jsr	primm
+	.text	"  #"
+	.byte	0
+	jsr	io_prtdrivenum
+	#endif
 	jsr	io_detcurrdrv
 	cpy	#0
 	bne	!+
@@ -51,18 +78,23 @@ io_detnextdrvtp:
 // FlexSD firmware not present. Try status read
 	jsr	io_detbysts
 // Detect interface for drive
-!:	jsr	io_detdrvif
+!:
+	#if HAS_TED
+// Detect failed. Try C16STM anyway
+	lda io_drivetyp
+	cmp #$ff
+	bne !+
+	jsr	io_detc16stm
+!:
+	#endif
+	jsr	io_detdrvif
 	#if	prtstatus
 // Print detected drive and interface type
 	lda	io_drivetyp
 	cmp	#$ff
 	bne !+
 	jmp	io_detdrvnotpresent
-!:	jsr	primm
-	.text	"  #"
-	.byte	0
-	jsr	io_prtdrivenum
-	lda	#':'
+!:	lda	#':'
 	jsr	chrout
 	jsr	prtspc
 	lda	io_drivetyp
@@ -128,10 +160,33 @@ io_detnextdrvtp:
 	#endif	
 // Device number not responding. Try next one
 io_detdrvnotpresent:
+	#if prtstatus
+	lda	io_drivetyp
+	cmp	#$ff
+	bne !+
+#if DEBUG
+	jsr prtcr
+#else
+	#if HAS_TED
+	lda #$1b
+	jsr chrout
+	lda #'d'
+	jsr chrout
+	#else
+	lda #$14
+	jsr chrout
+	jsr chrout
+	jsr chrout
+	jsr chrout
+	jsr chrout
+	#endif
+#endif
+!:	
+	#endif
 	pla
 	pha
 	cmp	currdrive
-	bne	!+
+	bne !+
 	// this is the drive we use: save detected interfaces
 	lda	io_drivetyp
 	pha
@@ -149,7 +204,8 @@ io_detdrvnotpresent:
 	cli
 }
 #endif
-!:	ldx	currdrive
+!:
+	ldx	currdrive
 	inx
 	cpx	#lastdrive+1
 	beq !+
@@ -181,9 +237,25 @@ io_detdrvnotpresent:
 	sta	io_drivetyp
 	pla
 	sta	currdrive
-	rts
+	lda nodefaultdrive
+	beq	!+
+	lda c16stmdevice
+	beq !+
+	// No default drive was set and C16STM is detected: use that
+	sta currdrive
+	lda #13
+	sta io_driveiftyp
+	lda #7
+	sta io_driveiftyp
+!:	rts
 	
 io_detcurrdrv:
+#if	HAS_TED
+#if DEBUG
+	lda #$32
+	sta ted.border
+#endif
+#endif
 	ldx	#0
 	stx	io_drivetyp
 	lda	io_drvaddr,x
@@ -192,6 +264,12 @@ nextchk:
 	sta	mraddr
 	sty	mraddr+1
 	jsr	readmem
+#if	HAS_TED
+#if DEBUG
+	lda #$44
+	sta ted.border
+#endif
+#endif
 	bcs	notexist
 sameaddr:
 	ldy	io_drvaddr+3,x
@@ -217,10 +295,17 @@ nexttyp:
 	lda	io_drvaddr,x
 	ldy	io_drvaddr+1,x
 	cmp	mraddr
-	beq	notfound+1
+	beq	donext
 	bne	nextchk
 notfound:
+#if	HAS_TED
+#if DEBUG
+	lda #$77
+	sta ted.border
+#endif
+#endif
 	rts
+donext:
 	cpy	mraddr+1
 	beq	sameaddr
 	bne	nextchk
@@ -228,30 +313,60 @@ notfound:
 notexist:
 	ldy	#$ff
 foundtyp:
+#if	HAS_TED
+#if DEBUG
+	lda #$55
+	sta ted.border
+#endif
+#endif
 	sty	io_drivetyp
 	rts
 	
 // Read drive memory
 //=======================================
 readmem:
+#if DEBUG
+	lda #'r'
+	jsr chrout
+#endif
 	stx	xtmp
 	lda	#15
 	ldx	currdrive
 	tay
 	jsr	setlfs
+#if DEBUG
+	lda #'l'
+	jsr chrout
+#endif
 	lda	#6
 	ldx	#<mrtxt
 	ldy	#>mrtxt
 	jsr	setnam
+#if DEBUG
+	lda #'n'
+	jsr chrout
+#endif
 	jsr	open
+#if DEBUG
+	lda #'+'
+	jsr chrout
+#endif
 	lda	st
 	bne	!+
 	ldx	#15
 	jsr	chkin
+#if DEBUG
+	lda #'<'
+	jsr chrout
+#endif
 	lda	st
 	bne	!+
 	jsr	chrin
 	sta	mrdta
+#if DEBUG
+	lda #'r'
+	jsr chrout
+#endif
 // do not check ST so printers can be detected
 //	lda	st
 //	bne	+
@@ -260,37 +375,72 @@ readmem:
 !:	sec
 	php
 	jsr	clrchans
+#if DEBUG
+	lda #'c'
+	jsr chrout
+#endif
 	lda	#15
 	jsr	close
+#if DEBUG
+	lda #'-'
+	jsr chrout
+#endif
 	plp
 	ldx	xtmp
 	rts
 
 detflexsd:
 {
+#if DEBUG
+	lda #'f'
+	jsr chrout
+#endif
 	ldx	#'z'
 	ldy	#'i'
 	jsr	readstatus
 	bcc	!+
 	rts
-!:	lda	statustxt
+!:
+#if DEBUG
+	lda #'.'
+	jsr chrout
+#endif
+	lda	statustxt
 	cmp	#'3'
 	beq	!+
 	ldy	#11
 	sty	io_drivetyp
 	clc
+	.byte $24
 !:	sec
+#if DEBUG
+	php
+	pla
+	pha
+	and #1
+	ora #'0'
+	jsr chrout
+	plp
+#endif
 	rts
 }
 
 io_detbysts:
 {
+#if DEBUG
+	lda #'?'
+	jsr chrout
+#endif
 	ldx	#'u'
 	ldy	#'i'
 	jsr	readstatus
 	bcc	!+
 	rts
 !:
+#if DEBUG
+	lda #'!'
+	jsr chrout
+#endif
 // analyze result status string
 	lda	#<io_drivestsstr
 	ldx	#>io_drivestsstr
@@ -326,6 +476,7 @@ nextsts:
 !:	cmp	#<io_drivestsstre
 	bne	cmpsts
 !:	clc
+	rts
 }
 
 readstatus:
@@ -449,7 +600,7 @@ end:	pla
 #endif
 nottcbm:
 	dey
-	bne	io_detdrvcurriffail
+	bne	io_notpar
 	// YR was 4 (parallel) - do actual parallel probe
 #if	HAS_TED
 	lda	#$ff
@@ -473,6 +624,13 @@ nottcbm:
 	jsr	chkfd10
 	bcc	ser
 #endif
+io_notpar:
+	dey		// 5: serial burst - not supported yet
+	dey		// 6: IEEE-488 - not supported yet
+	dey		// 7: expansion port
+	bne	io_notexpansionport
+	beq end // always detected
+io_notexpansionport:
 io_detdrvcurriffail:
 	pla
 	sec
@@ -517,6 +675,80 @@ writemem:
 	ldx	xtmp
 	rts
 
+#if HAS_TED
+io_detc16stm: {
+#if TEST_C16STM
+	lda currdrive
+	cmp #9
+	bne nodevice
+	sta c16stmdevice
+	ldy	#13
+	sty	io_drivetyp
+	clc
+	rts
+#endif
+	ldx #$08
+!:	txa
+	jsr W8051
+#if DEBUG
+	php
+	lda #'/'
+	jsr chrout
+	plp
+#endif
+	bne nodevice
+	dex
+	bne !-
+	beq !+
+
+nodevice:
+	sec
+	rts
+!:
+#if DEBUG
+	lda #'.'
+	jsr chrout
+#endif
+	lda #$6D
+	jsr sendcommand
+#if DEBUG
+	pha
+	jsr hexbout
+	pla
+#endif
+	and #$0f
+	cmp currdrive
+	bne nodevice
+	sta c16stmdevice
+	ldy	#13
+	sty	io_drivetyp
+	clc
+	rts
+
+W8051:
+	sta temp
+	pha
+	lda #$62
+	jsr sendbyte
+	pla
+	jsr sendbyte
+	jsr sendbyte
+	eor #$FF
+.label temp=*+1
+	cmp #0
+	rts
+
+sendcommand:
+	jsr sendbyte
+sendbyte:
+	sta c16stm.data
+!:
+	lda c16stm.status
+	bmi !-
+	lda c16stm.data
+	rts }	
+#endif
+
 	#if	prtstatus
 io_prtdrivenum:
 	ldx	#0
@@ -550,6 +782,9 @@ io_drivenames:
 	.text	"SD2IEC          " // 10
 	.text	"SD2IEC/FlexSD   " // 11
 	.text	"FD-2000         " // 12
+#if HAS_TED
+	.text	"C16STM          " // 13
+#endif
 io_ifnames:
 		//0123456789abcdef
 	.text	"unsupported     " // 0
@@ -557,8 +792,9 @@ io_ifnames:
 	.text	"                " // 2 // placeholder for serial with multiple drives connected
 	.text	"TCBM            " // 3
 	.text	"parallel        " // 4
-//	.text	"serial-burst    " // 5
-//	.text	"IEEE-488        " // 6
+	.text	"serial-burst    " // 5
+	.text	"IEEE-488        " // 6
+	.text	"expansion port  " // 7
 	#endif
 
 //Structure:
@@ -590,7 +826,7 @@ io_drvaddr:
 io_drvaddre:
 
 // format: null terminated string up to 6 characters or 7 characters without null termination
-// 	byte 8 is drive type number  
+// 	byte 8 is drive type number
 io_drivestsstr:
 	       //0123456
 	.text	"sd2iec"
@@ -612,19 +848,32 @@ iftable:
 	.byte 4,1 //1541/II,serial
 	.byte 5,3 //1551,TCBM
 //	.byte 6,4 //1570,parallel
-//	.byte 6,5 //1570,serial burst
+#if HAS_BURST
+	.byte 6,5 //1570,serial burst
+#endif
 	.byte 6,1 //1570,serial
 //	.byte 7,4 //1571,parallel
-//	.byte 7,5 //1571,serial burst
+#if HAS_BURST
+	.byte 7,5 //1571,serial burst
+#endif
 	.byte 7,1 //1571,serial
-//	.byte 8,5 //1581,serial burst
+#if HAS_BURST
+	.byte 8,5 //1581,serial burst
+#endif
 	.byte 8,1 //1581,serial
 	.byte 9,1 //RF501C,serial
 	.byte 10,1//SD2IEC,serial
 	.byte 11,1//SD2IEC/FlexSD,serial
 	.byte 12,1//FD-2000,serial
+#if HAS_TED
+	.byte 13,7//C16STM, expansion port
+#endif
 iftblend:
 
+nodefaultdrive:
+	.byte	0
+c16stmdevice:
+	.byte	0
 io_drivetyp:
 	.byte	0
 io_driveiftyp:
