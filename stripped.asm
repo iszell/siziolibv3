@@ -1,8 +1,8 @@
-	#import	"plus4_basic_header.inc"
+//	#import	"plus4_basic_header.inc"
 	#import	"plus4_kernal_table.inc"
 	#import	"ted.inc"
 
-//	* = $1030
+	* = $1030
 	jsr	iolib.detect
 	lda	iolib.drivedetect.io_drivetyp
 	bne	!+
@@ -11,8 +11,8 @@ quit:
 !:	sei
 	jsr	iolib.init
 	bcs  quit
-//	jmp $1000
-	jmp $5555
+	jmp $1000
+//	jmp $5555
 
 .namespace iolib {
 	.label	io_tcbmoffs	= $06ff

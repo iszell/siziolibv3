@@ -91,6 +91,8 @@ loadloop:
 	ldx	#'b'
 	ldy	#'1'
 	jsr	iolib.load
+	lda #$32
+	bcs quit
 	inc	framerun
 	
 	jsr	clr
@@ -109,6 +111,8 @@ loadloop:
 	ldx	#'e'
 	ldy	#'1'
 	jsr	iolib.decrunch
+	lda #$55
+	bcs quit
 	inc	framerun
 	jsr	clr
 	lda	#'E'
@@ -119,6 +123,11 @@ loadloop:
 	sty	modestr+2
 	jsr	prtstr
 	jmp	loadloop
+
+quit:
+	sei
+	sta ted.border
+	jmp *
 	
 clr:	ldx	#0
 	lda	#$00

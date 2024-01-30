@@ -30,25 +30,6 @@ initloader:
 	.text	"Initializing I/O library"
 	.byte	13,0
 	#endif	
-	#if	need_exodecrunch
-	#if	prtstatus
-	jsr	primm
-	.text	" Exomizer decruncher"
-	.byte	13, 0
-	#endif
-	ldx	#0
-!:	lda	io_decrunchdata,x
-	sta	iolib.decrunch,x
-	inx
-	bne	!-
-	ldx	#io_decrunchdatasize-$100-1
-!:	lda	io_decrunchdata+$100,x
-	sta	iolib.decrunch+$100,x
-	dex
-	bpl	!-
-	pla
-	pha
-	#endif
 	ldx	xtmp
 	inx
 	lda	io_loadertab,x
@@ -198,6 +179,9 @@ nodrivesidecode:
 	sei
 }
 	pla
+	#if	need_exodecrunch
+	pha
+	#endif
 	asl
 	tax
 	lda	io_plus4loaders,x
@@ -219,6 +203,41 @@ nodrivesidecode:
 	sta	ted.romen
 	cli
 }
+	#if	need_exodecrunch
+	#if	prtstatus
+	jsr	primm
+	.byte	13
+	.text	" Exomizer decruncher"
+	.byte	0
+	#endif
+	pla
+	cmp #5
+	beq c16stmdecrunch
+
+	ldx	#0
+!:	lda	io_decrunchdata,x
+	sta	iolib.decrunch,x
+	inx
+	bne	!-
+	ldx	#io_decrunchdatasize-$100-1
+!:	lda	io_decrunchdata+$100,x
+	sta	iolib.decrunch+$100,x
+	dex
+	bpl	!-
+	bmi decruncend
+c16stmdecrunch:
+	ldx	#0
+!:	lda	io_decrunchdata_c16stm,x
+	sta	iolib.decrunch,x
+	inx
+	bne	!-
+	ldx	#io_decrunchdatasize_c16stm-$100-1
+!:	lda	io_decrunchdata_c16stm+$100,x
+	sta	iolib.decrunch+$100,x
+	dex
+	bpl	!-
+decruncend:
+	#endif
 	#if	prtstatus
 	jsr	primm
 	.byte	13
@@ -477,6 +496,10 @@ io_loaderend:
 io_decrunchdata:
 	#import	"decrunch.inc"
 .label io_decrunchdatasize=*-io_decrunchdata
+io_decrunchdata_c16stm:
+	#import	"decrunch_c16stm.inc"
+.label io_decrunchdatasize_c16stm=*-io_decrunchdata_c16stm
+
 #endif
 }
 }

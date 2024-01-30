@@ -2,7 +2,7 @@
 	.namespace iolib {
 	.namespace plus4c16stm {
 	.pseudopc io_base {
-	
+
 #if TEST_C16STM
 .print "!!! TEST BUILD !!!"
 #endif
@@ -18,27 +18,21 @@ sync:
 
 readbyte:
 #if	need_exodecrunch
-	jsr	declength
- 	bne eof
 	ldy #0
 	lda (iolib.io_loadptr),y
 	inc	iolib.io_loadptr
 	bne !+
 	inc	iolib.io_loadptr+1
-!:
-	rts
-
-eof:
-	sec
+!:	clc
 #endif
 	rts
 
 writebyte:
 #if	need_exodecrunch
 	ldx	filenameptr
-	sta filename-1,x
+	sta filename,x
 	inx
-	cpx #3
+	cpx #2
 	bne !+
 	ldx #0
 !:	stx	filenameptr
@@ -71,23 +65,15 @@ loaderror:
 	
 	jsr sendrecievebyte
 	sta length		// file size
-	pha
 	jsr sendrecievebyte
 // increase length by $100 so when it's high byte for better finished check
 	sta length+1
-	txa
-	inx
-	txa
-	pha
 	
 	jsr sendandreceive
 
 	jsr sendrecievebyte
 	cmp #$80
-	beq !+
-	pla
-	pla
-	jmp loaderror
+	bne loaderror
 !:
 
 	lda #$63		// read word from file: load address
@@ -97,7 +83,9 @@ loaderror:
 	bmi !+
 #endif
 	sta iolib.io_loadptr
+#if	need_exodecrunch
 	pha
+#endif
 !:
 	jsr sendrecievebyte
 #if need_loadflag
@@ -105,7 +93,9 @@ loaderror:
 	bmi !+
 #endif
 	sta iolib.io_loadptr+1
+#if	need_exodecrunch
 	pha
+#endif
 !:
 
 	jsr declength
@@ -119,7 +109,7 @@ loaderror:
 	jsr sendrecievebyte
 	inc length+1
 
-	ldy #$00
+	ldy #0
 !:	jsr sendrecievebyte
 	sta (iolib.io_loadptr),y
 	iny
@@ -128,20 +118,20 @@ loaderror:
 !:	jsr declength
 	bne !--
 
+	jsr sendrecievebyte
+
 	lda #$54		// fclose
 	jsr sendrecievebyte
 .label channel=*+1
 	lda #0
 	jsr sendandreceive
 	
+#if	need_exodecrunch
 	pla
 	sta iolib.io_loadptr+1
 	pla
 	sta iolib.io_loadptr
-	pla
-	sta	length+1
-	pla
-	sta length
+#endif
 
 	ldx filename
 	ldy filename+1
@@ -169,7 +159,6 @@ declength:
 	dec length+1
 !:	rts
 
-// high byte will be overwritten by writebyte but that does not matter
 length:
 	.word	0
 filename:
