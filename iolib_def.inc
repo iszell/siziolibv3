@@ -37,11 +37,12 @@
 	//  0: 16k
 	//  1: 32k
 	//  2: 64k
-	//  3: 256k
-	//  4: 512k
-	//  5: 1024k
-	//  6: 2048k
-	//  7: 4096k
+	//  3: 128k
+	//  4: 256k
+	//  5: 512k
+	//  6: 1024k
+	//  7: 2048k
+	//  8: 4096k
 	// bit 5
 	//  SideKick NeoRAM present
 	// bit 6
@@ -54,7 +55,7 @@
 	// -----------------------------
 	// bit 0: SID present
 	// bit 1: SID type (0: 6581, 1: 8580)
-	// bit 2: NAE controls present
+	// bit 2: NAE/CAE controls present
 	// bit 3: AY (DIGIMUZ) present at $fd20
 	// bit 4: FM present at $fde2
 	// bit 5
