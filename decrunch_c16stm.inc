@@ -1,4 +1,4 @@
-	.print	". exomizer decruncher"
+	.print	". exomizer decruncher for C16STM"
 	.namespace iolib {
 	.namespace iolibdecrunch {
 	.pseudopc decrunch {
