@@ -116,14 +116,14 @@ detect_vice:
 #if	HAS_TED
 	lda $fdd0
 	ldx #0
-!:  cmp $fdd0
+!:  ora $fdd0
 	bne endvice
 	dex
 	bne !-
 
 	jsr primm
 	.byte 130
-	.text "Please don't use VICE xplus4!"
+	.text "Please use a better emulator!"
 	.byte 132, 13, 0
 	
 	pla
@@ -143,3 +143,21 @@ endvice:
 	#import	"detect_drive.inc"
  	#import	"iolib_init.inc"
 }
+
+/*
+Protocol:
+Send 3 bytes:
+- file name length (ignored)
+- first character of filename
+- second character of filename
+Byte read:
+- marker byte: $ac
+- multibyte return: when the marker byte is returned a second read is necessary to get the proper value:
+- - marker ($ac): the marker byte should be stored
+- - $ff: EOF, no more bytes to read
+- - $f7: read error, file is closed
+Load:
+- always whole files are read (including load address)
+- uncompressed load: first two bytes returned are the load address and loaded content will be stored starting from there
+- compressed (exomizer mem -f): first two bytes are ignored and file is decomressed on the fly (no storing and uncompressing). Start address is included in compressed bytestream so normal start address is ignored.
+*/

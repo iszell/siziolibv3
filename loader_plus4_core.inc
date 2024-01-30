@@ -2,9 +2,21 @@
 	#import	"plus4_io_map.inc"
 	#import	"iolib_def.inc"
 
+// WARNING! C16STM does not use this!
+
 .macro	plus4load(readbyte, writebyte, sync, hardsync) {
 .label	ptr	= iolib.io_loadptr
-	jsr sendfnam
+	stx filename
+	sty filename+1
+	jsr hardsync
+	lda #2
+	jsr writebyte
+	lda filename
+	jsr writebyte
+	lda filename+1
+	jsr writebyte
+	jsr sync
+
 	jsr readbyte
 #if need_loadflag
 	bit iolib.io_loadflag
@@ -50,17 +62,6 @@ loaderror:
 	ldx filename
 	ldy filename+1
 	rts
-sendfnam:
-	stx filename
-	sty filename+1
-	jsr hardsync
-	lda #2
-	jsr writebyte
-	lda filename
-	jsr writebyte
-	lda filename+1
-	jsr writebyte
-	jmp sync
 
 filename:
 	.byte 0, 0

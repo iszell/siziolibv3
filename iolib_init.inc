@@ -71,7 +71,10 @@ initloader:
 	jsr	prtcr
 	pla
 	#endif
-	asl
+	cmp #8
+	bne !+
+	jmp	nodrivesidecode
+!:	asl
 	asl
 	tax
 	// loader start address
@@ -172,6 +175,7 @@ wrtnxt:	ldx	#15
 	jsr	clrchans
 	lda	#15
 	jsr	close
+nodrivesidecode:
 	#if	prtstatus
 	jsr	primm
 	.text	" Computer loader: "
@@ -248,7 +252,7 @@ xtmp:	.byte	0
 //        bit 4-1: drive type
 //        bit   0: 0: computer, 1: drive
 // Value:	byte 0: computer loader
-//	byte 1: drive loader
+//			byte 1: drive loader
 io_loadertab:
 	// unsupported interface
 	.byte	0, 0 // 0
@@ -351,6 +355,57 @@ io_loadertab:
 	.byte	0, 0 // d
 	.byte	0, 0 // e
 	.byte	0, 0 // f
+	// serial burst
+	.byte	0, 0 // 0
+	.byte	0, 0 // 1
+	.byte	0, 0 // 2
+	.byte	0, 0 // 3
+	.byte	0, 0 // 4
+	.byte	0, 0 // 5
+	.byte	0, 0 // 6
+	.byte	0, 0 // 7
+	.byte	0, 0 // 8
+	.byte	0, 0 // 9
+	.byte	0, 0 // a
+	.byte	0, 0 // b
+	.byte	0, 0 // c
+	.byte	0, 0 // d
+	.byte	0, 0 // e
+	.byte	0, 0 // f
+	// IEEE-488
+	.byte	0, 0 // 0
+	.byte	0, 0 // 1
+	.byte	0, 0 // 2
+	.byte	0, 0 // 3
+	.byte	0, 0 // 4
+	.byte	0, 0 // 5
+	.byte	0, 0 // 6
+	.byte	0, 0 // 7
+	.byte	0, 0 // 8
+	.byte	0, 0 // 9
+	.byte	0, 0 // a
+	.byte	0, 0 // b
+	.byte	0, 0 // c
+	.byte	0, 0 // d
+	.byte	0, 0 // e
+	.byte	0, 0 // f
+	// C16STM
+	.byte	0, 0 // 0
+	.byte	0, 0 // 1
+	.byte	0, 0 // 2
+	.byte	0, 0 // 3
+	.byte	0, 0 // 4
+	.byte	0, 0 // 5
+	.byte	0, 0 // 6
+	.byte	0, 0 // 7
+	.byte	0, 0 // 8
+	.byte	0, 0 // 9
+	.byte	0, 0 // a
+	.byte	0, 0 // b
+	.byte	0, 0 // c
+	.byte	5, 8 // d
+	.byte	0, 0 // e
+	.byte	0, 0 // f
 
 	#if	prtstatus
 io_cmploadernames:
@@ -360,6 +415,7 @@ io_cmploadernames:
 	.text	"serial 1bit     " // 2
 	.text	"parallel        " // 3
 	.text	"TCBM            " // 4
+	.text	"C16STM          " // 5
 io_drvloadernames:
 		//0123456789abcdef
 	.text	"unsupported     " // 0
@@ -370,6 +426,7 @@ io_drvloadernames:
 	.text	"1541 parallel   " // 5
 	.text	"1551 TCBM       " // 6
  	.text	"SD2IEC G.I. Joe " // 7
+ 	.text	"n/a             " // 8
 	#endif
 
 // contains the start address of the selected loader with the end address on the next word
@@ -379,6 +436,7 @@ io_plus4loaders:
 	.word	io_plus4serial1bit
 	.word	io_plus4parallel
 	.word	io_plus4tcbm
+	.word	io_plus4c16stm
 // contains the start address and end addresses of the selected loader
 io_driveloaders:
 	.word	0, 0
@@ -398,6 +456,8 @@ io_plus4parallel:
 	#import	"loader_plus4_parallel.inc"
 io_plus4tcbm:
 	#import	"loader_plus4_tcbm.inc"
+io_plus4c16stm:
+	#import	"loader_plus4_c16stm.inc"
 io_drv1541ser2:
 //	#import	"loader_drive_2bit1541.inc"
 io_drv1541ser1:

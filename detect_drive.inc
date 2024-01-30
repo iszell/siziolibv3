@@ -244,7 +244,7 @@ io_detdrvnotpresent:
 	// No default drive was set and C16STM is detected: use that
 	sta currdrive
 	lda #13
-	sta io_driveiftyp
+	sta io_drivetyp
 	lda #7
 	sta io_driveiftyp
 !:	rts
@@ -709,7 +709,7 @@ nodevice:
 	lda #'.'
 	jsr chrout
 #endif
-	lda #$6D
+	lda #$6D			// Get config word, response is a single byte
 	jsr sendcommand
 #if DEBUG
 	pha
@@ -728,7 +728,7 @@ nodevice:
 W8051:
 	sta temp
 	pha
-	lda #$62
+	lda #$62			// Echo
 	jsr sendbyte
 	pla
 	jsr sendbyte
@@ -746,7 +746,8 @@ sendbyte:
 	lda c16stm.status
 	bmi !-
 	lda c16stm.data
-	rts }	
+	rts
+}	
 #endif
 
 	#if	prtstatus
