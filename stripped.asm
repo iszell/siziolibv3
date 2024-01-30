@@ -2,6 +2,7 @@
 	#import	"plus4_kernal_table.inc"
 	#import	"ted.inc"
 
+//	* = $1030
 	jsr	iolib.detect
 	lda	iolib.drivedetect.io_drivetyp
 	bne	!+
@@ -10,6 +11,7 @@ quit:
 !:	sei
 	jsr	iolib.init
 	bcs  quit
+//	jmp $1000
 	jmp $5555
 
 .namespace iolib {
@@ -23,4 +25,5 @@ quit:
 #define need_loader
 #define need_loadflag
 #define skip_default_definitions
+#define bypass_vice
 #import "iolib.inc"
