@@ -1,3 +1,4 @@
+C1541			= c1541.bat
 CC1541			= cc1541
 EXOMIZER		= exomizer
 EXOMIZERSFXOPTS	= sfx basic -t 4 -n -s "lda 174 pha" -f "pla sta 174"
@@ -8,10 +9,11 @@ KICKASSOPTS		+= -showmem -symbolfile -bytedumpfile $(basename $@).lst
 SRCS = $(wildcard *.asm)
 PRGS = $(SRCS:.asm=.prg)
 
-all: testdisk.d64 testdisk.d71 testdisk.d81 init.prg initquiet.prg stripped.prg
+all: testdisk.d64 testdisk.d71 testdisk.d81 init.prg initquiet.prg stripped.prg extract
 
 clean:
 	$(RM) *.prg *.lst *.d?? *.tmp *.sym
+	$(RM) -r sd2iec
 
 %.prg: %.asm *.inc
 	$(KICKASS) $(KICKASSOPTS) -o $(basename $@).tmp $<
@@ -65,3 +67,8 @@ testdisk.d64 testdisk.d71 testdisk.d81: $(PRGS) exotestdata.prg bitmapexodata.pr
 		-f "hwdetect 64" -w hwdetect64.prg \
 		-f "stripped loader" -w strippedtest.prg \
 		$@
+
+extract: testdisk.d64
+	mkdir sd2iec
+	$(C1541) -attach testdisk.d64 -cd sd2iec -extract 8 -cd ..
+	for i in sd2iec/* ; do mv "$$i" "$$i.prg" ; done
