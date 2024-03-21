@@ -376,6 +376,7 @@ runsec:
 
 .namespace iolib {
 	#define	prtstatus
+	#define	bypass_vice
 	#define need_video_detect
 	#define need_memory_detect
 	#define need_sound_detect
