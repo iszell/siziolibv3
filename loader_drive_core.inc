@@ -109,7 +109,7 @@ readfnam:
 	}
 	lda ledport		// turn led off
 	.if (!ledinverted) {
-	and #255-ledvalue
+	and #~ledvalue
 	} else {
 	ora #ledvalue
 	}
@@ -139,7 +139,7 @@ readfnam:
 	.if (!ledinverted) {
 	ora #ledvalue
 	} else {
-	and #255-ledvalue
+	and #~ledvalue
 	}
 	sta ledport
 	pla
