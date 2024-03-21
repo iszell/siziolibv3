@@ -100,7 +100,8 @@ nosiddet:
 	dex
 	beq	!+
 	lda	#'C'
-!:	jsr	chrout
+!:	sta naecaecardtype
+	jsr	chrout
 	jsr	primm
 	.text	"AE "
 	.byte	0
@@ -219,7 +220,8 @@ io_detsidaddr:
 //=======================================
 
 #if	HAS_TED
-detnae:	lda #%11100000
+detnae:
+	lda #%11100000
 	sta nae_control+13
 	ldx #0
 !:	lda nae_control+15
@@ -266,7 +268,8 @@ detsidtp:
 	ldy #0
 	ldx #0
 	sty ystore
-loop2:	ldy #27
+loop2:
+	ldy #27
 	lda (sidptr),y
 	bmi newsid
 	dex
@@ -276,16 +279,20 @@ loop2:	ldy #27
 	sty ystore
 	bne loop2
 	beq oldsid
-newsid:	lda #%10
+newsid:
+	lda #%10
 	ora io_soundtype
 	sta io_soundtype
-oldsid:	rts
+oldsid:
+	rts
 
 #if	HAS_TED
 setsidc64:
 	#if	prtstatus
 	jsr	primm
-	.text	" Switching NAE to C64 clock"
+	.text	" Switching "
+naecaecardtype:
+	.text	"NAE to C64 clock"
 	.byte	13, 0
 	#endif
 	lda #$d1
@@ -294,7 +301,8 @@ setsidc64:
 #endif
 
 #if	HAS_TED
-detay:  ldy	#15
+detay:
+	ldy	#15
 	lda	#0
 !:	jsr	writeayreg
 	dey
