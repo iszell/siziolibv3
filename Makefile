@@ -69,6 +69,7 @@ testdisk.d64 testdisk.d71 testdisk.d81: $(PRGS) exotestdata.prg bitmapexodata.pr
 		$@
 
 extract: testdisk.d64
+	$(RM) -r sd2iec
 	mkdir sd2iec
 	$(C1541) -attach testdisk.d64 -cd sd2iec -extract 8 -cd ..
 	for i in sd2iec/* ; do mv "$$i" "$$i.prg" ; done
