@@ -741,11 +741,14 @@ W8051:
 sendcommand:
 	jsr sendbyte
 sendbyte:
+	ldy #0
 	sta c16stm.data
 !:
+	dey
+	beq !+
 	lda c16stm.status
 	bmi !-
-	lda c16stm.data
+!:	lda c16stm.data
 	rts
 }	
 #endif
