@@ -17,5 +17,6 @@
 	#define need_video_detect
 	#define need_memory_detect
 	#define need_sound_detect
+	#define bypass_vice
 }
 #import "iolib.inc"
