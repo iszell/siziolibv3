@@ -102,8 +102,8 @@ detect_memsize:
 	.text	"k NeoRAM"
 	.byte	0
 !:	jsr	prtcr
-	rts
 	#endif
+	rts
 	
 // Detect Hannes expansion
 // -----------------------
