@@ -623,6 +623,7 @@ nottcbm:
 	jsr	writemem
 	jsr	chkfd10
 	bcc	ser
+	bcs io_detdrvcurriffail
 #endif
 io_notpar:
 	dey		// 5: serial burst - not supported yet
