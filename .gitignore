@@ -1,5 +1,6 @@
-ByteDump.txt
 !init*.prg
+!testdisk.d*
+ByteDump.txt
 *.prg
 *.d64
 *.d71
