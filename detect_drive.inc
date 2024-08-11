@@ -37,14 +37,12 @@ io_det_drive:
 	sta	io_drivesernum
 	#if	prtstatus
 	jsr	primm
-	.text	" Detected devices:"
-	.byte	13, 0
+	.text	@" Detected devices:\$0d\$00"
 	#endif
 	jsr	io_detectdrvtp	
 	#if	prtstatus
 	jsr	primm
-	.text	" Using drive #"
-	.byte	0
+	.text	@" Using drive #\$00"
 	jsr	io_prtdrivenum
 	jsr	prtcr
 	#endif
@@ -65,8 +63,7 @@ io_detnextdrvtp:
 	stx	currdrive
 	#if prtstatus
 	jsr	primm
-	.text	"  #"
-	.byte	0
+	.text	@"  #\$00"
 	jsr	io_prtdrivenum
 	#endif
 	jsr	io_detcurrdrv
@@ -213,8 +210,7 @@ io_detdrvnotpresent:
 !:
 	#if	prtstatus
 	jsr	primm
-	.text	" Devices connected to serial bus: "
-	.byte	0
+	.text	@" Devices connected to serial bus: \$00"
 	lda	io_drivesernum
 	ora	#'0'
 	jsr	chrout
@@ -371,7 +367,7 @@ readmem:
 //	lda	st
 //	bne	+
 	clc
-	.byte	$24  // bit $xx
+	.byte	BIT_ZP
 !:	sec
 	php
 	jsr	clrchans
@@ -411,7 +407,7 @@ detflexsd:
 	ldy	#11
 	sty	io_drivetyp
 	clc
-	.byte $24
+	.byte BIT_ZP
 !:	sec
 #if DEBUG
 	php
@@ -534,7 +530,7 @@ readstatus:
 	bit st
 	bne enderr
 	clc
-	.byte $24  // bit $xx
+	.byte BIT_ZP
 enderr:	sec
 	php
 	jsr	clrchans
@@ -647,7 +643,7 @@ chkfd10:
 	dey
 	bne	chkfd10+2
 	sec
-	.byte $24 //bit $xx
+	.byte BIT_ZP
 !:	clc
 	rts
 #endif
