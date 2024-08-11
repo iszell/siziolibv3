@@ -649,7 +649,6 @@ nottcbm:
 	bcs io_detdrvcurriffail
 #endif
 io_notpar:
-.byte $f2
 	dey		// 5: TCBM standard
 	beq end // always detected
 	dey		// 6: IEEE-488 - not supported yet
