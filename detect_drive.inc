@@ -17,6 +17,7 @@ detect_drive:
 .const	lastdrive	= 15
 io_det_drive:
 #if	HAS_TED
+	#import "plus4_io_map.inc"
 #if DEBUG
 	lda ted.border
 	pha
@@ -67,12 +68,15 @@ io_detnextdrvtp:
 	jsr	io_prtdrivenum
 	#endif
 	jsr	io_detcurrdrv
+	cpy #5 // 1551?
+	beq forcestatus
 	cpy	#0
 	bne	!+
 // Detection by ROM read failed. Try FlexSD
 	jsr	detflexsd
 	bcc	!+
 // FlexSD firmware not present. Try status read
+forcestatus:
 	jsr	io_detbysts
 // Detect interface for drive
 !:
@@ -421,14 +425,22 @@ detflexsd:
 	rts
 }
 
-io_detbysts:
-{
+io_detbysts: {
 #if DEBUG
 	lda #'?'
 	jsr chrout
 #endif
 	ldx	#'u'
 	ldy	#'i'
+	jsr	readstatus
+	bcc	!+
+	rts
+!:
+	lda statustxt
+	cmp #'7'
+	beq !+
+	ldx #'u'		// workaround for YaPE IEC which does not support UI
+	ldy #'j'
 	jsr	readstatus
 	bcc	!+
 	rts
@@ -498,16 +510,30 @@ readstatus:
 	jsr	chkout
 	lda	st
 	bne	enderr
-.label	command1=*+1
-	lda	#0
+	lda	command1: #0
 	jsr	chrout
 	lda	st
 	bne	enderr
-.label	command2=*+1
-	lda	#0
+	lda	command2: #0
 	jsr	chrout
 	lda	st
 	bne	enderr
+	jsr clrchans
+	lda #15
+	jsr close
+	ldx #0
+!:	dex
+	bne !-
+#if HAS_TED
+!:	bit cpu_port
+	bpl !-
+#endif
+	ldx	currdrive
+	lda	#15
+	tay
+	jsr	setlfs
+	lda	#0
+	jsr	setnam
 	lda	#0
 	sta	statuslen
 	jsr	open
@@ -536,8 +562,9 @@ enderr:	sec
 	jsr	clrchans
 	lda	#15
 	jsr	close
-	lda #0
-	sta statustxt
+// Wondering why was this here??
+//	lda #0
+//	sta statustxt
 	plp
 	rts
 }
@@ -622,7 +649,9 @@ nottcbm:
 	bcs io_detdrvcurriffail
 #endif
 io_notpar:
-	dey		// 5: serial burst - not supported yet
+.byte $f2
+	dey		// 5: TCBM standard
+	beq end // always detected
 	dey		// 6: IEEE-488 - not supported yet
 	dey		// 7: expansion port
 	bne	io_notexpansionport
@@ -785,6 +814,8 @@ io_drivenames:
 	.text	"FD-2000         " // 12
 #if HAS_TED
 	.text	"C16STM          " // 13
+	.text	"YaPE-IEC        " // 14
+	.text	"TCBM2SD         " // 15
 #endif
 io_ifnames:
 		//0123456789abcdef
@@ -793,7 +824,7 @@ io_ifnames:
 	.text	"                " // 2 // placeholder for serial with multiple drives connected
 	.text	"TCBM            " // 3
 	.text	"parallel        " // 4
-	.text	"serial-burst    " // 5
+	.text	"TCBM standard   " // 5
 	.text	"IEEE-488        " // 6
 	.text	"expansion port  " // 7
 	#endif
@@ -830,8 +861,12 @@ io_drvaddre:
 // 	byte 8 is drive type number
 io_drivestsstr:
 	       //0123456
-	.text	"sd2iec"
-	.byte		0, 10
+	.text	@"sd2iec\$00"
+	.byte	10
+	.text	@"yape\$00\$00\$00"
+	.byte	14
+	.text	@"tcbm2sd"
+	.byte	15
 //	.text	"tdisk"
 //	.byte	0, 0, 10 // SD2IEC test
 io_drivestsstre:
@@ -839,6 +874,11 @@ io_drivestsstre:
 // Format: drive type, interface type
 // 	must be ordered by preffered one first
 iftable:
+#if HAS_TED
+	.byte 13,7//C16STM, expansion port
+	.byte 14,5//YAPE IEC, TCBM standard
+	.byte 15,5//SD2TCBM, TCBM standard
+#endif
 //	.byte 0,3 //unknown,TCBM
 	.byte 0,0 //unknown,unknown
 	.byte 1,1 //1540,serial
@@ -847,28 +887,33 @@ iftable:
 	.byte 3,1 //1541C,serial
 	.byte 4,4 //1541/II,parallel
 	.byte 4,1 //1541/II,serial
+#if HAS_TED
 	.byte 5,3 //1551,TCBM
+#endif
 //	.byte 6,4 //1570,parallel
+/*
 #if HAS_BURST
 	.byte 6,5 //1570,serial burst
 #endif
+*/
 	.byte 6,1 //1570,serial
 //	.byte 7,4 //1571,parallel
+/*
 #if HAS_BURST
 	.byte 7,5 //1571,serial burst
 #endif
+*/
 	.byte 7,1 //1571,serial
+/*
 #if HAS_BURST
 	.byte 8,5 //1581,serial burst
 #endif
+*/
 	.byte 8,1 //1581,serial
 	.byte 9,1 //RF501C,serial
 	.byte 10,1//SD2IEC,serial
 	.byte 11,1//SD2IEC/FlexSD,serial
 	.byte 12,1//FD-2000,serial
-#if HAS_TED
-	.byte 13,7//C16STM, expansion port
-#endif
 iftblend:
 
 nodefaultdrive:
