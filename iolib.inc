@@ -22,6 +22,8 @@
 //	2020.05.30: change copyright message
 //	2021.06.17: migrate sources to KickAss
 //	2024.01.27: C16STM support
+//	2024.08.11: YaPE 1551 IEC and SD2TCBM detection
+//	2024.08.21: Detect CPU port type
 
 	#import "iolib_def.inc"
 
@@ -30,16 +32,14 @@
 	.namespace iolib {
 	.encoding	"petscii_mixed"
 
-detect:
+detect: {
 // workaround for C16STM that destroys CPU port data
 	#if HAS_TED
 	lda ted.cursorlo
 	pha
 	lda	ted.cursorhi
 	pha
-	#endif
 	jsr ioinit
-	#if HAS_TED
 	pla
 	sta	ted.cursorhi
 	pla
@@ -57,7 +57,10 @@ detect:
 #if !bypass_vice
 	jsr detect_vice
 #endif
-
+	#if	need_cpu_detect
+	jsr	detect_cpu
+	php
+	#endif
 	#if	need_video_detect
 	jsr	detect_video
 	#endif
@@ -68,7 +71,16 @@ detect:
 	jsr	detect_sound
 	#endif
 	jsr	detect_drive
+	#if	need_cpu_detect
+	plp
+	bcc cpuok
+	lda #$77
+	sta ted.border
+	jmp *
+cpuok:
+	#endif
 	rts
+}
 
 #if	need_video_detect
 	.print	". video standard detection"
@@ -109,6 +121,70 @@ prtspc:	lda	#' '
 prtcr:	lda	#13
 	jmp	chrout
 	#endif
+
+#if	need_cpu_detect
+	.print	". CPU port type detection"
+detect_cpu:
+{
+#if	HAS_TED
+	lda cpu_port
+	pha
+	#if	prtstatus
+	jsr	primm
+	.text	@" CPU port type: \$00"
+	#endif
+	lda cpu_port
+	and #~%00000001
+	sta cpu_port
+	bit cpu_port
+	bpl not7501
+	ora #%00000001
+	sta cpu_port
+	bit cpu_port
+	bmi not7501
+	and #%00100000
+	bne not7501
+	#if prtstatus
+	jsr	primm
+	.text	@"7501/8501\$00"
+	#endif
+	clc
+	bcc cpuend
+not7501:
+	and #%11000000
+	eor #%11000000
+	bne not6502
+	lda cpu_port
+	and #~%00000011
+	sta cpu_port
+	lda cpu_port
+	and #%00100000
+	beq not6502
+	#if prtstatus
+	jsr	primm
+	.text	@"6502/8500\$00"
+	#endif
+	sec
+	bcs cpuend
+not6502:
+	#if prtstatus
+	jsr	primm
+	.text	@"Unsupported\$00"
+	#endif
+	sec
+cpuend:
+	php
+	#if prtstatus
+	lda #13
+	jsr chrout
+	#endif
+	plp
+	pla
+	sta cpu_port
+#endif
+	rts
+}
+#endif
 
 #if !bypass_vice
 detect_vice:

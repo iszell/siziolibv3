@@ -14,6 +14,7 @@
 
 .namespace iolib {
 	#define	prtstatus
+	#define need_cpu_detect
 	#define need_video_detect
 	#define need_memory_detect
 	#define need_sound_detect

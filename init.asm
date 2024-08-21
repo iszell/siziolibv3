@@ -48,6 +48,8 @@ error:	lda	#$32
 // Bypass VICE xplus4 detection and quitting when VICE is detected
 	#define bypass_vice
 */
+// Detect CPU to get rid of 6502to7501 adapters
+	#define need_cpu_detect
 // Detect video standard. Not really useful except for printing status message
 	#define need_video_detect
 // Detect memory size and expansion type

@@ -1,6 +1,6 @@
 #importonce
 .print "Plus/4 BASIC header"
-	* = $1001
+	* = $1001 "BASIC header"
 
 {
 	.word basend
@@ -10,3 +10,4 @@
 	.byte 0
 basend:	.word 0
 }
+	* = $100d "Code"

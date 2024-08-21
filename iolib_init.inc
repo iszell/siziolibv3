@@ -27,8 +27,7 @@ initloader:
 !:	pha
 	#if	prtstatus
 	jsr	primm
-	.text	"Initializing I/O library"
-	.byte	13,0
+	.text	@"Initializing I/O library\$0d\$00"
 	#endif	
 	ldx	xtmp
 	inx
@@ -36,8 +35,7 @@ initloader:
 	#if	prtstatus
 	pha
 	jsr	primm
-	.text	" Drive loader: "
-	.byte	0
+	.text	@" Drive loader: \$00"
 	asl
 	asl
 	asl
@@ -75,8 +73,7 @@ initloader:
 	sta	ptr+5
 	#if	prtstatus
 	jsr	primm
-	.text	"  Downloading drive code... "
-	.byte	0
+	.text	@"  Downloading drive code... \$00"
 	#endif
 // Download drive code
 	ldx	$ae
@@ -136,10 +133,8 @@ wrtnxt:	ldx	#15
 !:
 	#if	prtstatus
 	jsr	primm
-	.text	"done"
-	.byte	13
-	.text	"  Starting drive code" 
-	.byte	13, 0
+	.text	@"done\$0d"
+	.text	@"  Starting drive code\$0d\$00" 
 	#endif
 	ldx	#15
 	jsr	chkout
@@ -159,8 +154,7 @@ wrtnxt:	ldx	#15
 nodrivesidecode:
 	#if	prtstatus
 	jsr	primm
-	.text	" Computer loader: "
-	.byte	0
+	.text	@" Computer loader: \$00"
 	pla
 	pha
 	asl
@@ -206,9 +200,7 @@ nodrivesidecode:
 	#if	need_exodecrunch
 	#if	prtstatus
 	jsr	primm
-	.byte	13
-	.text	" Exomizer decruncher"
-	.byte	0
+	.text	@"\$0d Exomizer decruncher\$00"
 	#endif
 	pla
 	cmp #5
@@ -240,18 +232,14 @@ decruncend:
 	#endif
 	#if	prtstatus
 	jsr	primm
-	.byte	13
-	.text	"Initialization complete" 
-	.byte	13, 0
+	.text	@"\$0dInitialization complete\$0d\$00" 
 	#endif
 	clc
 	rts
 io_noloader:
 	#if	prtstatus
 	jsr	primm
-	.byte	13
-	.text	"Error: no loader for drive!" 
-	.byte	13, 0
+	.text	@"\$0dError: no loader for drive!\$0d\$00" 
 	#endif
 	sec
 	rts
@@ -374,7 +362,7 @@ io_loadertab:
 	.byte	0, 0 // d
 	.byte	0, 0 // e
 	.byte	0, 0 // f
-	// serial burst
+	// TCBM standard
 	.byte	0, 0 // 0
 	.byte	0, 0 // 1
 	.byte	0, 0 // 2
@@ -389,8 +377,8 @@ io_loadertab:
 	.byte	0, 0 // b
 	.byte	0, 0 // c
 	.byte	0, 0 // d
-	.byte	0, 0 // e
-	.byte	0, 0 // f
+	.byte	6, 8 // e
+	.byte	6, 8 // f
 	// IEEE-488
 	.byte	0, 0 // 0
 	.byte	0, 0 // 1
@@ -435,6 +423,7 @@ io_cmploadernames:
 	.text	"parallel        " // 3
 	.text	"TCBM            " // 4
 	.text	"C16STM          " // 5
+	.text	"TCBM standard   " // 6
 io_drvloadernames:
 		//0123456789abcdef
 	.text	"unsupported     " // 0
@@ -456,6 +445,7 @@ io_plus4loaders:
 	.word	io_plus4parallel
 	.word	io_plus4tcbm
 	.word	io_plus4c16stm
+	.word	io_plus4tcbm_standard
 // contains the start address and end addresses of the selected loader
 io_driveloaders:
 	.word	0, 0
@@ -475,6 +465,8 @@ io_plus4parallel:
 	#import	"loader_plus4_parallel.inc"
 io_plus4tcbm:
 	#import	"loader_plus4_tcbm.inc"
+io_plus4tcbm_standard:
+	#import	"loader_plus4_tcbm_standard.inc"
 io_plus4c16stm:
 	#import	"loader_plus4_c16stm.inc"
 io_drv1541ser2:
