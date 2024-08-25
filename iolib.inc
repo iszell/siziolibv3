@@ -147,6 +147,15 @@ detect_cpu:
 	#if prtstatus
 	jsr	primm
 	.text	@"7501/8501\$00"
+	lda cpu_dir
+	ora #%00100000
+	sta cpu_dir
+	lda cpu_dir
+	and #%00100000
+	beq not6502plus4
+	jsr	primm
+	.text	@" compatible\$00"
+not6502plus4:
 	#endif
 	clc
 	bcc cpuend
