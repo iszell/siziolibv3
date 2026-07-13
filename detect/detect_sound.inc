@@ -497,10 +497,9 @@ notfound:
 		pha
 		txa
 		sta	(addressptr),y
-		.for	(var i=0; i<3; i++) nop
-		pla
+		pla	// takes 6 cycles
 		sta	(dataptr),y
-		.for	(var i=0; i<21; i++) nop
+		.for	(var i=0; i<15; i++) nop // NOP takes 2 cycles, RTS takes 6, next JSR takes also 6 so we are safe with 15 NOPs
 		rts
 	}
 }
